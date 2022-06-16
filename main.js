@@ -1,6 +1,6 @@
 /** @type {HTMLCanvasElement} */
 const droneCanvas = document.getElementById("droneCanvas");
-droneCanvas.width = 1500;
+droneCanvas.width = 500;
 droneCanvas.height = 500;
 
 const droneCtx = droneCanvas.getContext("2d");
