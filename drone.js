@@ -23,7 +23,6 @@ class Drone {
   /** @param {CanvasRenderingContext2D} ctx */
   update(dt) {
     this.motorThrottle = [
-      // TODO: why is this reserved?
       this.controls.left ? 0.8 : 0,
       this.controls.right ? 0.8 : 0,
     ];
