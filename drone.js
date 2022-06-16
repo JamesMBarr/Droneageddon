@@ -3,7 +3,7 @@ const GRAVITY = [0, 9.81];
 class Drone {
   constructor() {
     this.pos = [250, 100]; // pixels
-    this.velocity = [0, 0]; // ms^-1
+    this.velocity = [0, 0]; // ms-1
     this.theta = 0; // rad
     this.omega = 0; // rads-1
     this.width = 100; // pixels
@@ -24,8 +24,8 @@ class Drone {
   update(dt) {
     this.motorThrottle = [
       // TODO: why is this reserved?
-      this.controls.right ? 1 : 0,
-      this.controls.left ? 1 : 0,
+      this.controls.right ? 0.8 : 0,
+      this.controls.left ? 0.8 : 0,
     ];
 
     this.#move(dt);
@@ -102,6 +102,7 @@ class Drone {
   draw(ctx) {
     ctx.save();
 
+    // drone frame triangle
     ctx.beginPath();
     ctx.translate(this.pos[0], this.pos[1]);
     ctx.rotate(this.theta);
@@ -111,26 +112,41 @@ class Drone {
     ctx.lineTo(0, 0);
     ctx.stroke();
 
+    // central circle
     ctx.beginPath();
     ctx.arc(0, 15, 15, Math.PI, -Math.PI, true);
     ctx.fill();
-
+    // central red eye
     ctx.beginPath();
     ctx.arc(0, 15, 5, Math.PI, -Math.PI, true);
     ctx.fillStyle = "red";
     ctx.fill();
 
+    // draw motor
     for (let index = 0; index < 2; index++) {
       const side = index % 2 == 0;
+      const x = ((this.width - 10) * (side ? 1 : -1)) / 2;
+      const y = this.height / 2 + 4;
+      const width = side ? 7 : -7;
+      const height = this.height / 2;
+
       ctx.beginPath();
-      ctx.rect(
-        ((this.width - 10) * (side ? 1 : -1)) / 2,
-        this.height / 2 + 4,
-        side ? 7 : -7,
-        this.height / 2
-      );
+      ctx.rect(x, y, width, height);
       ctx.fillStyle = "black";
       ctx.fill();
+
+      // draw throttle indicator
+      if (this.motorThrottle[index] !== 0) {
+        ctx.beginPath();
+        ctx.rect(
+          x,
+          this.height + 4,
+          width * this.motorThrottle[index],
+          height * this.motorThrottle[index]
+        );
+        ctx.fillStyle = "orange";
+        ctx.fill();
+      }
     }
 
     ctx.restore();
