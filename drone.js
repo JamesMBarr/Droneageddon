@@ -8,11 +8,11 @@ class Drone {
     this.omega = 0; // rads-1
     this.width = 100; // pixels
     this.height = 30; // pixels
-    this.mass = 0.4; //kg
+    this.mass = 0.4; // kg
     // prettier-ignore
     // this.i = (2 * (this.mass / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
     // Experimentally found - calculation doesn't feel right
-    this.i = 15;
+    this.i = 15; // kgm2
     // https://droneomega.com/drone-motor-essentials/
     this.motorThrust = 9.81 / 2; // N
     this.motorThrottle = [0.21, 0.21]; // ratio
@@ -24,8 +24,8 @@ class Drone {
   update(dt) {
     this.motorThrottle = [
       // TODO: why is this reserved?
-      this.controls.right ? 0.8 : 0,
       this.controls.left ? 0.8 : 0,
+      this.controls.right ? 0.8 : 0,
     ];
 
     this.#move(dt);
@@ -58,8 +58,8 @@ class Drone {
 
   #calculateTorque() {
     return (
-      (this.width / 2) * this.motorThrust * this.motorThrottle[1] -
-      (this.width / 2) * this.motorThrust * this.motorThrottle[0]
+      (this.width / 2) * this.motorThrust * this.motorThrottle[0] -
+      (this.width / 2) * this.motorThrust * this.motorThrottle[1]
     ); // Nm
   }
 
@@ -82,8 +82,8 @@ class Drone {
     let force = this.#resolveForces();
     for (let dim = 0; dim < 2; dim++) {
       this.velocity[dim] += (force[dim] / this.mass) * dt_s;
-      // multiple by 500 to convert 500 pixels into 1m
-      this.pos[dim] = this.pos[dim] + this.velocity[dim] * dt_s * 100;
+      // multiple by 50 to convert 500 pixels into 10m
+      this.pos[dim] = this.pos[dim] + this.velocity[dim] * dt_s * 50;
     }
 
     this.omega += (this.#calculateTorque() / this.i) * dt_s;
@@ -124,7 +124,8 @@ class Drone {
 
     // draw motor
     for (let index = 0; index < 2; index++) {
-      const side = index % 2 == 0;
+      // prettier-ignore
+      const side = (index + 1) % 2 == 0;
       const x = ((this.width - 10) * (side ? 1 : -1)) / 2;
       const y = this.height / 2 + 4;
       const width = side ? 7 : -7;
