@@ -1,7 +1,13 @@
 /** @type {HTMLCanvasElement} */
 const droneCanvas = document.getElementById("droneCanvas");
-droneCanvas.width = 500;
-droneCanvas.height = 500;
+
+droneCanvas.width = window.innerWidth;
+droneCanvas.height = window.innerHeight;
+
+window.addEventListener("resize", () => {
+  droneCanvas.width = window.innerWidth;
+  droneCanvas.height = window.innerHeight;
+});
 
 const droneCtx = droneCanvas.getContext("2d");
 
@@ -19,7 +25,7 @@ function animate(time) {
   droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
 
   drone.update(dt);
-  drone.draw(droneCtx);
+  drone.draw(droneCtx, droneCanvas);
 
   if (spring) {
     spring.draw(droneCtx);

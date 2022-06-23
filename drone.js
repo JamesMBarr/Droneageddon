@@ -17,15 +17,24 @@ class Drone {
     this.motorThrust = 9.81 / 2; // N
     this.motorThrottle = [0.21, 0.21]; // ratio
 
-    this.controls = new Controls();
+    this.controls = null;
+    this.brain = new Brain();
+    this.brain.mutate();
   }
 
   /** @param {CanvasRenderingContext2D} ctx */
   update(dt) {
-    this.motorThrottle = [
-      this.controls.left ? 0.8 : 0,
-      this.controls.right ? 0.8 : 0,
-    ];
+    if (this.controls) {
+      this.motorThrottle = [
+        this.controls.left ? 0.8 : 0,
+        this.controls.right ? 0.8 : 0,
+      ];
+    } else if (this.brain) {
+      this.motorThrottle = this.brain.calculateThrottle([
+        this.pos[0],
+        this.pos[1],
+      ]);
+    }
 
     this.#move(dt);
 
@@ -98,12 +107,17 @@ class Drone {
   }
 
   /** @param {CanvasRenderingContext2D} ctx */
-  draw(ctx) {
+  draw(ctx, canvas) {
     ctx.save();
 
     // drone frame triangle
     ctx.beginPath();
-    ctx.translate(this.pos[0], this.pos[1]);
+
+    // wrap the x-axis
+    const x_mod =
+      (this.pos[0] % canvas.width) + (this.pos[0] < 0 ? canvas.width : 0);
+
+    ctx.translate(x_mod, this.pos[1]);
     ctx.rotate(this.theta);
     ctx.moveTo(0, 0);
     ctx.lineTo(this.width / 2, this.height);
