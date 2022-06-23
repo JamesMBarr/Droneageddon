@@ -1,6 +1,6 @@
 class Brain {
   constructor() {
-    this.numberOfInputs = 3;
+    this.numberOfInputs = 2;
     this.numberOfOutputs = 2;
     this.numberOfNodesInHiddenLayers = [4];
     this.numberOfHiddenLayers = this.numberOfNodesInHiddenLayers.length;
@@ -46,7 +46,7 @@ class Brain {
    * Calculates the output of the neural network given the inputs.
    * @param {Array<number>} inputs
    */
-  feedForward(inputs) {
+  #feedForward(inputs) {
     if (inputs.length !== this.numberOfInputs) {
       throw Error(`Number of inputs must be ${this.numberOfInputs}`);
     }
@@ -81,19 +81,19 @@ class Brain {
           nodeValue += nodeWeights[inputNode] * previousLayerValues[inputNode];
         }
 
-        this.nodeValues[layer][node] = this.activation(nodeValue);
+        this.nodeValues[layer][node] = this.#activation(nodeValue);
       }
     }
 
     return this.nodeValues[this.weights.length - 1];
   }
 
-  activation(z) {
+  #activation(z) {
     return Math.tanh(z);
   }
 
-  calculateThrust(inputs) {
-    const outputs = this.feedForward(inputs);
+  calculateThrottle(inputs) {
+    const outputs = this.#feedForward(inputs);
     // normalise output between 0-1
     return [(outputs[0] + 1) / 2, (outputs[1] + 1) / 2];
   }
