@@ -11,28 +11,19 @@ window.addEventListener("resize", () => {
 
 const droneCtx = droneCanvas.getContext("2d");
 
-const drone = new Drone();
-// const spring = new Spring(drone);
-const spring = null;
-const display = new Display(drone);
+let simulation = new Simulation();
+let stop = false;
 
-let perviousTime = 0;
-
-animate();
-
-function animate(time) {
-  const dt = time - perviousTime;
-  perviousTime = time;
-  droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
-
-  drone.update(dt);
-  drone.draw(droneCtx, droneCanvas);
-
-  if (spring) {
-    spring.draw(droneCtx);
+function step(time) {
+  if (simulation === null) {
+    simulation = new Simulation();
+  } else if (simulation && simulation.activeDrones.length > 0) {
+    simulation.animate(time);
   }
 
-  display.draw(droneCtx);
-
-  requestAnimationFrame(animate);
+  if (!stop) {
+    window.requestAnimationFrame(step);
+  }
 }
+
+window.requestAnimationFrame(step);

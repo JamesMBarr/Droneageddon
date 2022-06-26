@@ -30,7 +30,7 @@ class Drone {
     this.distanceTraveled = 0;
   }
 
-  restart() {
+  initialise() {
     this.active = true;
     this.activeTime = 0;
     this.distanceTraveled = 0;
