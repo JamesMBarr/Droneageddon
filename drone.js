@@ -1,4 +1,4 @@
-const GRAVITY = [0, 9.81];
+const GRAVITY = [0, -9.81];
 
 class Drone {
   constructor() {
@@ -55,9 +55,9 @@ class Drone {
         springForce[0] +
         this.motorThrust * this.motorThrottle[0] * Math.sin(this.theta) +
         this.motorThrust * this.motorThrottle[1] * Math.sin(this.theta),
-      GRAVITY[1] * this.mass -
-        springForce[1] -
-        this.motorThrust * this.motorThrottle[0] * Math.cos(this.theta) -
+      GRAVITY[1] * this.mass +
+        springForce[1] +
+        this.motorThrust * this.motorThrottle[0] * Math.cos(this.theta) +
         this.motorThrust * this.motorThrottle[1] * Math.cos(this.theta),
     ]; // N
 
@@ -98,8 +98,8 @@ class Drone {
     this.theta += this.omega * dt_s;
 
     // TODO: basic collision needs improving
-    if (this.pos[1] > 500 - this.height) {
-      this.pos[1] = 500 - this.height;
+    if (this.pos[1] < 10) {
+      this.pos[1] = 0;
       this.velocity = [0, 0];
       this.motorThrottle = [0, 0];
       this.omega = 0;
@@ -116,8 +116,9 @@ class Drone {
     // wrap the x-axis
     const x_mod =
       (this.pos[0] % canvas.width) + (this.pos[0] < 0 ? canvas.width : 0);
-
-    ctx.translate(x_mod, this.pos[1]);
+    // inverse the y axis
+    const y_mod = canvas.height - this.pos[1];
+    ctx.translate(x_mod, y_mod);
     ctx.rotate(this.theta);
     ctx.moveTo(0, 0);
     ctx.lineTo(this.width / 2, this.height);
