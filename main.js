@@ -14,6 +14,7 @@ const droneCtx = droneCanvas.getContext("2d");
 const drone = new Drone();
 // const spring = new Spring(drone);
 const spring = null;
+const display = new Display(drone);
 
 let perviousTime = 0;
 
@@ -30,6 +31,8 @@ function animate(time) {
   if (spring) {
     spring.draw(droneCtx);
   }
+
+  display.draw(droneCtx);
 
   requestAnimationFrame(animate);
 }

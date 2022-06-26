@@ -165,15 +165,5 @@ class Drone {
     }
 
     ctx.restore();
-
-    // TODO: move into a new progress bar class
-    ctx.beginPath();
-    ctx.font = "50px serif";
-
-    const speed = this.statics["speed"].toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    ctx.fillText(`speed:  ${speed} m/s`, 10, 200);
   }
 }
