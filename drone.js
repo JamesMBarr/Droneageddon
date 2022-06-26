@@ -1,8 +1,8 @@
 const GRAVITY = [0, -9.81];
 
 class Drone {
-  constructor() {
-    this.pos = [250, 100]; // pixels
+  constructor(brain) {
+    this.pos = [250, 250]; // pixels
     this.velocity = [0, 0]; // ms-1
     this.theta = 0; // rad
     this.omega = 0; // rads-1
@@ -18,8 +18,27 @@ class Drone {
     this.motorThrottle = [0.21, 0.21]; // ratio
 
     this.controls = null;
-    this.brain = new Brain();
-    this.brain.mutate();
+
+    if (brain) {
+      this.brain = brain;
+    } else {
+      this.brain = new Brain();
+    }
+
+    this.active = true;
+    this.activeTime = 0;
+    this.distanceTraveled = 0;
+  }
+
+  restart() {
+    this.active = true;
+    this.activeTime = 0;
+    this.distanceTraveled = 0;
+
+    this.pos = [250, 250];
+    this.velocity = [0, 0];
+    this.theta = 0;
+    this.omega = 0;
   }
 
   /** @param {CanvasRenderingContext2D} ctx */
@@ -31,16 +50,19 @@ class Drone {
       ];
     } else if (this.brain) {
       this.motorThrottle = this.brain.calculateThrottle([
-        this.pos[0],
-        this.pos[1],
+        (this.pos[0] - 250) / 1e3,
+        (this.pos[1] - 250) / 1e3,
+        this.velocity[0] / 1e3,
+        this.velocity[1] / 1e3,
+        this.theta,
+        this.omega,
       ]);
     }
 
     this.#move(dt);
 
-    if (this.spring) {
-      this.spring.height = this.pos[1];
-    }
+    this.activeTime += dt;
+    this.distanceTraveled += this.statics.speed * dt;
   }
 
   #resolveForces() {
@@ -71,15 +93,6 @@ class Drone {
     ); // Nm
   }
 
-  get statics() {
-    // prettier-ignore
-    const speed = Math.sqrt(Math.pow(this.velocity[0], 2) + Math.pow(this.velocity[1], 2)); // ms^-1
-
-    return {
-      speed,
-    };
-  }
-
   #move(dt) {
     // do nothing if dt is NaN
     if (isNaN(dt)) return;
@@ -98,12 +111,38 @@ class Drone {
     this.theta += this.omega * dt_s;
 
     // TODO: basic collision needs improving
-    if (this.pos[1] < 10) {
-      this.pos[1] = 0;
+    if (
+      this.pos[0] < 0 ||
+      this.pos[0] > 500 ||
+      this.pos[1] < 0 ||
+      this.pos[1] > 500
+    ) {
       this.velocity = [0, 0];
       this.motorThrottle = [0, 0];
       this.omega = 0;
+      this.active = false;
     }
+  }
+
+  mate(partner) {
+    const childBrain = this.brain.mate(partner.brain);
+
+    const child = new Drone(childBrain);
+
+    return child;
+  }
+
+  get statics() {
+    // prettier-ignore
+    const speed = Math.sqrt(Math.pow(this.velocity[0], 2) + Math.pow(this.velocity[1], 2)); // ms^-1
+
+    return {
+      speed,
+    };
+  }
+
+  get fitness() {
+    return this.activeTime;
   }
 
   /** @param {CanvasRenderingContext2D} ctx */

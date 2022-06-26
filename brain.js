@@ -1,15 +1,15 @@
 class Brain {
   constructor() {
-    this.numberOfInputs = 2;
+    this.numberOfInputs = 6;
     this.numberOfOutputs = 2;
-    this.numberOfNodesInHiddenLayers = [4];
+    this.numberOfNodesInHiddenLayers = [8];
     this.numberOfHiddenLayers = this.numberOfNodesInHiddenLayers.length;
 
     this.weights = [];
     this.bias = [];
     this.nodeValues = [];
 
-    this.mutationRate = 0.1;
+    this.mutationRate = 0.01;
 
     this.#initialiseWeightsAndBias();
   }
@@ -33,13 +33,26 @@ class Brain {
 
       // loop over all the nodes in the layer
       for (let node = 0; node < numberOfInCurrentLayer; node++) {
-        layerWeights.push(new Array(numberOfNodesInPreviousLayer).fill(0));
+        layerWeights.push(
+          this.#generateRandomWeightAndBias(numberOfNodesInPreviousLayer)
+        );
       }
 
-      this.nodeValues.push(new Array(numberOfInCurrentLayer).fill(0));
-      this.bias.push(new Array(numberOfInCurrentLayer).fill(0));
+      this.nodeValues.push(
+        this.#generateRandomWeightAndBias(numberOfInCurrentLayer)
+      );
+      this.bias.push(this.#generateRandomWeightAndBias(numberOfInCurrentLayer));
+
       this.weights.push(layerWeights);
     }
+  }
+
+  #generateRandomWeightAndBias(length) {
+    return this.#generateRandomArray(length, -2, 2);
+  }
+
+  #generateRandomArray(length, min, max) {
+    return Array.from({ length }, () => Math.random() * (max - min) + min);
   }
 
   /**
@@ -96,6 +109,51 @@ class Brain {
     const outputs = this.#feedForward(inputs);
     // normalise output between 0-1
     return [(outputs[0] + 1) / 2, (outputs[1] + 1) / 2];
+  }
+
+  /**
+   * Mate two brains and randomly select the weights and bias from either parent.
+   * @param {Brain} partner
+   */
+  mate(partner) {
+    const child = new Brain();
+
+    for (let layer = 0; layer < this.numberOfHiddenLayers + 1; layer++) {
+      const numberOfNodesInPreviousLayer =
+        layer == 0
+          ? this.numberOfInputs
+          : this.numberOfNodesInHiddenLayers[layer - 1];
+
+      const numberOfInCurrentLayer =
+        layer == this.numberOfNodesInHiddenLayers.length
+          ? this.numberOfOutputs
+          : this.numberOfNodesInHiddenLayers[layer];
+
+      // loop over all the nodes in the layer
+      for (let node = 0; node < numberOfInCurrentLayer; node++) {
+        for (
+          let inputNode = 0;
+          inputNode < numberOfNodesInPreviousLayer;
+          inputNode++
+        ) {
+          if (Math.random() > 0.5) {
+            child.weights[layer][node][inputNode] =
+              this.weights[layer][node][inputNode];
+          } else {
+            child.weights[layer][node][inputNode] =
+              partner.weights[layer][node][inputNode];
+          }
+        }
+
+        if (Math.random() > 0.5) {
+          child.bias[layer][node] = this.bias[layer][node];
+        } else {
+          child.bias[layer][node] = partner.bias[layer][node];
+        }
+      }
+    }
+
+    return child;
   }
 
   /**
