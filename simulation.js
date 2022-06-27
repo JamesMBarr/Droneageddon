@@ -22,7 +22,7 @@ class Simulation {
 
     this.activeDrones = this.drones.filter((d) => d.active);
 
-    if (this.activeDrones.length > 0) {
+    if (this.activeDrones.length > 10) {
       for (let i = 0; i < this.activeDrones.length; i++) {
         const drone = this.activeDrones[i];
         drone.update(dt);
@@ -47,24 +47,21 @@ class Simulation {
       drone.initialise();
     }
 
-    // populate 10% of the population from new drones
-    for (let i = 0; i < number10Percentage; i++) {
-      nextGeneration.push(new Drone());
-    }
+    // // populate 10% of the population from new drones
+    // for (let i = 0; i < 0; i++) {
+    //   nextGeneration.push(new Drone());
+    // }
 
-    // get the top 50% of the population
+    // get the top XX% of the population
     const top50Percentage = [...this.sortedDrones].splice(
       0,
       Math.round(0.5 * this.numberPerGeneration)
     );
 
-    const remainingNumber =
-      this.numberPerGeneration - number10Percentage - number10Percentage;
-
-    // populate the remaining with mates from the top 50%
+    // populate the remaining with mates from the top XX%
     // parents are selected random
     // TODO: make the probability of selection depend on the fitness
-    for (let i = 0; i < remainingNumber; i++) {
+    for (let i = 0; i < this.numberPerGeneration - nextGeneration.length; i++) {
       const parent1 =
         top50Percentage[Math.floor(Math.random() * top50Percentage.length)];
       const parent2 =
