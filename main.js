@@ -11,19 +11,8 @@ window.addEventListener("resize", () => {
 
 const droneCtx = droneCanvas.getContext("2d");
 
-let simulation = new Simulation();
-let stop = false;
+const GRAVITY = [0, -9.81];
 
-function step(time) {
-  if (simulation === null) {
-    simulation = new Simulation();
-  } else if (simulation && simulation.activeDrones.length > 0) {
-    simulation.animate(time);
-  }
-
-  if (!stop) {
-    window.requestAnimationFrame(step);
-  }
-}
-
-window.requestAnimationFrame(step);
+const simulation = new Simulation();
+simulation.train();
+simulation.startAnimation();

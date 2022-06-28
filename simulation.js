@@ -1,67 +1,102 @@
 class Simulation {
   constructor() {
-    this.numberPerGeneration = 10000;
-    this.numberToDraw = 10;
-    this.generation = 0;
-    this.previousTime = 0;
+    this.GENERATION_SIZE = 1000;
+    this.NUMBER_TO_DRAW = 10;
+    this.TIME_STEP = 16; // ms
+
+    // TARGET
+    this.NUMBER_OF_GENERATIONS = 10;
+    this.TARGET_FITNESS = 1 * 60 * 1e3;
+    this.NUMBER_OF_DRONES_AT_TARGET = 10;
+
+    this.generation = 0; // counter
+    this.intervalId = 0;
 
     // start with random drones
     this.drones = [];
-    for (let i = 0; i < this.numberPerGeneration; i++) {
+    for (let i = 0; i < this.GENERATION_SIZE; i++) {
       this.drones.push(new Drone());
     }
-
+    // moving this into a getter causes performance issues
     this.activeDrones = this.drones;
   }
 
-  animate(time) {
-    droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
-
-    const dt = time - this.previousTime;
-    this.previousTime = time;
-
-    this.activeDrones = this.drones.filter((d) => d.active);
-
-    if (this.activeDrones.length > 10) {
-      for (let i = 0; i < this.activeDrones.length; i++) {
-        const drone = this.activeDrones[i];
-        drone.update(dt);
-
-        // only draw x number of drones
-        if (i < this.numberToDraw) {
-          drone.draw(droneCtx, droneCanvas);
+  /**
+   * Train the a series of generations of drones until the target fitness is
+   * reached.
+   */
+  train() {
+    // while (this.activeDrones[0].fitness < this.TARGET_FITNESS) {
+    while (this.generation < this.NUMBER_OF_GENERATIONS) {
+      if (this.activeDrones.length > this.NUMBER_OF_DRONES_AT_TARGET) {
+        for (let i = 0; i < this.activeDrones.length; i++) {
+          const drone = this.activeDrones[i];
+          drone.update(this.TIME_STEP);
         }
+        this.activeDrones = this.activeDrones.filter((d) => d.active);
+      } else {
+        this.#startNextGeneration();
       }
-    } else {
-      this.startNextGeneration();
     }
   }
 
-  calculateNextGeneration() {
-    const number10Percentage = Math.round(0.1 * this.numberPerGeneration);
-    // next generation contains top 10% of the current generation
-    const nextGeneration = [...this.sortedDrones].splice(0, number10Percentage);
+  /**
+   * Starts an animation drawing the top NUMBER_TO_DRAW drones.
+   */
+  startAnimation() {
+    // only want to draw the top NUMBER_TO_DRAW
+    this.activeDrones = this.activeDrones.splice(0, this.NUMBER_TO_DRAW);
+    this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
+  }
 
-    // reinitialise drone from the previous generation
-    for (const drone of nextGeneration) {
-      drone.initialise();
+  stopAnimation() {
+    clearInterval(this.intervalId);
+  }
+
+  /**
+   * Draws the frame. This clears the context and draws the
+   * Simulation.numberToDraw drones.
+   */
+  #frame() {
+    console.log(this.activeDrones.length);
+    droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
+
+    for (
+      let i = 0;
+      i < Math.min(this.NUMBER_TO_DRAW, this.activeDrones.length);
+      i++
+    ) {
+      const drone = this.activeDrones[i];
+      drone.update(this.TIME_STEP);
+      drone.draw(droneCtx, droneCanvas, i);
     }
 
-    // // populate 10% of the population from new drones
-    // for (let i = 0; i < 0; i++) {
-    //   nextGeneration.push(new Drone());
-    // }
+    this.activeDrones = this.activeDrones.filter((d) => d.active);
 
-    // get the top XX% of the population
-    const top50Percentage = [...this.sortedDrones].splice(
-      0,
-      Math.round(0.5 * this.numberPerGeneration)
-    );
+    if (this.activeDrones.length === 0) {
+      this.stopAnimation();
+    }
+  }
 
-    // populate the remaining with mates from the top XX%
-    // parents are selected random
+  /**
+   * Calculates the next generation of drones using a genetic algorithm. Keeps
+   * the top 10% and fills the remainder of the generation with the children
+   * from the top 50%.
+   * @returns {Drone[]} next generation of drones
+   */
+  #calculateNextGeneration() {
+    // next generation contains top 10% of the current generation
+    const nextGeneration = this.#selectTopPercentage(0.1);
+
+    // reset drones from the previous generation
+    for (const drone of nextGeneration) {
+      drone.reset();
+    }
+
+    const top50Percentage = this.#selectTopPercentage(0.5);
+    // populate the remaining generation from child from the top 50% drones
     // TODO: make the probability of selection depend on the fitness
-    for (let i = 0; i < this.numberPerGeneration - nextGeneration.length; i++) {
+    for (let i = 0; i < this.GENERATION_SIZE - nextGeneration.length; i++) {
       const parent1 =
         top50Percentage[Math.floor(Math.random() * top50Percentage.length)];
       const parent2 =
@@ -76,15 +111,30 @@ class Simulation {
     return nextGeneration;
   }
 
-  // start generation of drones
-  startNextGeneration() {
+  /**
+   * Selects the top X drones from the current generation. X given by ratio.
+   * @param {number} ratio - percentage of the population between 0-1
+   * @returns
+   */
+  #selectTopPercentage(ratio) {
+    const numberOfDrones = Math.round(ratio * this.GENERATION_SIZE);
+    return [...this.sortedDrones].splice(0, numberOfDrones);
+  }
+
+  /**
+   * Starts the next generation and increments the generation counter.
+   */
+  #startNextGeneration() {
     console.log(this.generation, this.sortedDrones[0].fitness);
-    const nextGeneration = this.calculateNextGeneration();
+    const nextGeneration = this.#calculateNextGeneration();
     this.drones = nextGeneration;
-    this.activeDrones = nextGeneration;
+    this.activeDrones = this.drones;
     this.generation++;
   }
 
+  /**
+   * Current generation of drones ordered by the drone fitness.
+   */
   get sortedDrones() {
     return this.drones.sort((a, b) => b.fitness - a.fitness);
   }
