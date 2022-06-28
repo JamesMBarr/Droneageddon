@@ -33,10 +33,13 @@ class Drone {
 
     this.controls = null;
 
-    this.initialise();
+    this.reset();
   }
 
-  initialise() {
+  /**
+   * Resets a drones aggregates controls and dynamic variables.
+   */
+  reset() {
     this.#resetAggregates();
     this.#resetControls();
     this.#resetDynamicVariables();
