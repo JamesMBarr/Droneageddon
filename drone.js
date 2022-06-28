@@ -12,7 +12,7 @@ class Drone {
     // prettier-ignore
     // this.i = (2 * (this.mass / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
     // Experimentally found - calculation doesn't feel right
-    this.i = 15; // kgm2
+    this.i = 20; // kgm2
     // https://droneomega.com/drone-motor-essentials/
     this.motorThrust = 9.81 / 2; // N
     this.motorThrottle = [0.21, 0.21]; // ratio
@@ -145,8 +145,15 @@ class Drone {
     return this.activeTime;
   }
 
-  /** @param {CanvasRenderingContext2D} ctx */
-  draw(ctx, canvas) {
+  /**
+   * Basic illustration of a drone. Adds a label if it is defined. Draws "motor"
+   * exhaust "flame" (just an orange block). The size of the "flame" depends on
+   * the motor motorThrottle.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {HTMLCanvasElement} canvas
+   * @param {string|undefined} label
+   */
+  draw(ctx, canvas, label) {
     ctx.save();
 
     // drone frame triangle
@@ -159,6 +166,14 @@ class Drone {
     const y_mod = canvas.height - this.pos[1];
     ctx.translate(x_mod, y_mod);
     ctx.rotate(this.theta);
+
+    if (label !== undefined) {
+      ctx.font = "24px serif";
+      ctx.fillText(label, 0, -4);
+      ctx.fillStyle = "black";
+      ctx.fill();
+    }
+
     ctx.moveTo(0, 0);
     ctx.lineTo(this.width / 2, this.height);
     ctx.lineTo(-this.width / 2, this.height);
