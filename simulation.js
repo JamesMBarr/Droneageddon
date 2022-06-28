@@ -58,7 +58,6 @@ class Simulation {
    * Simulation.numberToDraw drones.
    */
   #frame() {
-    console.log(this.activeDrones.length);
     droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
 
     for (
