@@ -1,11 +1,11 @@
 class Brain {
   constructor() {
     // CONSTS
-    this.numberOfInputs = 6;
-    this.numberOfOutputs = 2;
-    this.numberOfNodesInHiddenLayers = [8];
-    this.mutationRate = 0.01;
-    this.randomValueLimit = 2;
+    this.NUMBER_OF_INPUTS = 6;
+    this.NUMBER_OF_OUTPUTS = 2;
+    this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS = [8];
+    this.MUTATION_RATE = 0.01;
+    this.RANDOM_VALUE_LIMIT = 2;
 
     // NEURAL NETWORK
     this.weights = [];
@@ -24,8 +24,8 @@ class Brain {
    * @throws if the input array is not the expected length
    */
   calculateThrottle(inputs) {
-    if (inputs.length !== this.numberOfInputs) {
-      throw Error(`Number of inputs must be ${this.numberOfInputs}`);
+    if (inputs.length !== this.NUMBER_OF_INPUTS) {
+      throw Error(`Number of inputs must be ${this.NUMBER_OF_INPUTS}`);
     }
 
     const outputs = this.#feedForward(inputs);
@@ -45,13 +45,13 @@ class Brain {
     for (let layer = 0; layer < this.#numberOfHiddenLayers + 1; layer++) {
       const numberOfNodesInPreviousLayer =
         layer == 0
-          ? this.numberOfInputs
-          : this.numberOfNodesInHiddenLayers[layer - 1];
+          ? this.NUMBER_OF_INPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer - 1];
 
       const numberOfInCurrentLayer =
-        layer == this.numberOfNodesInHiddenLayers.length
-          ? this.numberOfOutputs
-          : this.numberOfNodesInHiddenLayers[layer];
+        layer == this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS.length
+          ? this.NUMBER_OF_OUTPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer];
 
       // loop over all the nodes in the layer
       for (let node = 0; node < numberOfInCurrentLayer; node++) {
@@ -88,13 +88,13 @@ class Brain {
     for (let layer = 0; layer < this.#numberOfHiddenLayers + 1; layer++) {
       const numberOfNodesInPreviousLayer =
         layer == 0
-          ? this.numberOfInputs
-          : this.numberOfNodesInHiddenLayers[layer - 1];
+          ? this.NUMBER_OF_INPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer - 1];
 
       const numberOfInCurrentLayer =
-        layer == this.numberOfNodesInHiddenLayers.length
-          ? this.numberOfOutputs
-          : this.numberOfNodesInHiddenLayers[layer];
+        layer == this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS.length
+          ? this.NUMBER_OF_OUTPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer];
 
       // loop over all the nodes in the layer
       for (let node = 0; node < numberOfInCurrentLayer; node++) {
@@ -104,10 +104,10 @@ class Brain {
           inputNode++
         ) {
           // prettier-ignore
-          this.weights[layer][node][inputNode] += ((Math.random() * 2) - 1) * this.mutationRate
+          this.weights[layer][node][inputNode] += ((Math.random() * 2) - 1) * this.MUTATION_RATE
         }
 
-        this.bias[layer][node] += (Math.random() * 2 - 1) * this.mutationRate;
+        this.bias[layer][node] += (Math.random() * 2 - 1) * this.MUTATION_RATE;
       }
     }
   }
@@ -130,13 +130,13 @@ class Brain {
     for (let layer = 0; layer < this.#numberOfHiddenLayers + 1; layer++) {
       const numberOfNodesInPreviousLayer =
         layer == 0
-          ? this.numberOfInputs
-          : this.numberOfNodesInHiddenLayers[layer - 1];
+          ? this.NUMBER_OF_INPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer - 1];
 
       const numberOfInCurrentLayer =
         layer == this.#numberOfHiddenLayers
-          ? this.numberOfOutputs
-          : this.numberOfNodesInHiddenLayers[layer];
+          ? this.NUMBER_OF_OUTPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer];
 
       const previousLayerValues =
         layer == 0 ? inputs : this.nodeValues[layer - 1];
@@ -172,8 +172,8 @@ class Brain {
   #generateRandomWeightAndBias(length) {
     return this.#generateRandomArray(
       length,
-      -this.randomValueLimit,
-      this.randomValueLimit
+      -this.RANDOM_VALUE_LIMIT,
+      this.RANDOM_VALUE_LIMIT
     );
   }
 
@@ -199,13 +199,13 @@ class Brain {
       const layerWeights = [];
       const numberOfNodesInPreviousLayer =
         layer === 0
-          ? this.numberOfInputs
-          : this.numberOfNodesInHiddenLayers[layer - 1];
+          ? this.NUMBER_OF_INPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer - 1];
 
       const numberOfInCurrentLayer =
-        layer === this.numberOfNodesInHiddenLayers.length
-          ? this.numberOfOutputs
-          : this.numberOfNodesInHiddenLayers[layer];
+        layer === this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS.length
+          ? this.NUMBER_OF_OUTPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer];
 
       // loop over all the nodes in the layer
       for (let node = 0; node < numberOfInCurrentLayer; node++) {
@@ -222,6 +222,6 @@ class Brain {
   }
 
   get #numberOfHiddenLayers() {
-    return this.numberOfNodesInHiddenLayers.length;
+    return this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS.length;
   }
 }
