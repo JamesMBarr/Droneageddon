@@ -1,5 +1,10 @@
 class Drone {
-  constructor(brain) {
+  /**
+   * @param {Brain} brain
+   * @param {Target} target
+   * @param {number[][]} boundaries
+   */
+  constructor(brain, target, boundaries) {
     // CONSTS
     this.WIDTH = 100; // pixels
     this.HEIGHT = 30; // pixels
@@ -10,6 +15,10 @@ class Drone {
     this.I = 20; // kgm2
     // https://droneomega.com/drone-motor-essentials/
     this.MOTOR_THRUST = 9.81 / 2; // N
+    this.BOUNDARIES = boundaries || [
+      [-200, 1000],
+      [-200, 1000],
+    ];
 
     // DYNAMICS VARS
     this.pos = [0, 0]; // pixels
@@ -24,6 +33,9 @@ class Drone {
     // AGGEG METRICS
     this.activeTime = 0; // aggregation of the time spent active
     this.distanceTraveled = 0;
+    this.distanceTime = 0; // product of time and distance
+    this.numberOfTargetsReached = 0;
+    this.timeStepsAtTarget = 0;
 
     if (brain) {
       this.brain = brain;
@@ -31,7 +43,10 @@ class Drone {
       this.brain = new Brain();
     }
 
+    /** @type {Control} */
     this.controls = null;
+    /** @type {Target} */
+    this.target = target || new Target([0, 0]);
 
     this.reset();
   }
@@ -61,8 +76,8 @@ class Drone {
       ];
     } else if (this.brain) {
       this.motorThrottle = this.brain.calculateThrottle([
-        (this.pos[0] - 250) / 1e3,
-        (this.pos[1] - 250) / 1e3,
+        (this.target.pos[0] - this.pos[0]) / 1e3,
+        (this.target.pos[1] - this.pos[1]) / 1e3,
         this.velocity[0] / 1e3,
         this.velocity[1] / 1e3,
         this.theta,
@@ -89,6 +104,18 @@ class Drone {
   }
 
   /**
+   * Update the drone's current target and increments the targets reached
+   * counter.
+   * TODO: consider moving onto the simulation.
+   * @param {Target} target - new target
+   */
+  setTarget(target) {
+    this.target = target;
+    this.numberOfTargetsReached += 1;
+    this.timeStepsAtTarget = 0;
+  }
+
+  /**
    * Basic illustration of a drone. Adds a label if it is defined. Draws "motor"
    * exhaust "flame" (just an orange block). The size of the "flame" depends on
    * the motor motorThrottle.
@@ -103,11 +130,11 @@ class Drone {
     ctx.beginPath();
 
     // wrap the x-axis
-    const x_mod =
+    const xMod =
       (this.pos[0] % canvas.width) + (this.pos[0] < 0 ? canvas.width : 0);
     // inverse the y axis
-    const y_mod = canvas.height - this.pos[1];
-    ctx.translate(x_mod, y_mod);
+    const yMod = canvas.height - this.pos[1];
+    ctx.translate(xMod, yMod);
     ctx.rotate(this.theta);
 
     if (label !== undefined) {
@@ -164,13 +191,22 @@ class Drone {
     ctx.restore();
   }
 
+  /**
+   * Calculates the distance to the target.
+   */
+  get distanceFromTarget() {
+    return addSquares(
+      this.target.pos[0] - this.pos[0],
+      this.target.pos[1] - this.pos[1]
+    );
+  }
+
   get fitness() {
     return this.activeTime;
   }
 
   get speed() {
-    // prettier-ignore
-    return Math.sqrt(Math.pow(this.velocity[0], 2) + Math.pow(this.velocity[1], 2))
+    return addSquares(this.velocity[0], this.velocity[1]);
   }
 
   /**
@@ -180,6 +216,7 @@ class Drone {
   #aggregatedMetrics(dt) {
     this.activeTime += dt;
     this.distanceTraveled += this.speed * dt;
+    this.distanceTime += this.distanceFromTarget * dt;
   }
 
   #resolveForces() {
@@ -229,21 +266,25 @@ class Drone {
 
     // TODO: basic collision needs improving
     if (
-      this.pos[0] < 0 ||
-      this.pos[0] > 500 ||
-      this.pos[1] < 0 ||
-      this.pos[1] > 500
+      this.pos[0] < this.BOUNDARIES[0][0] ||
+      this.pos[0] > this.BOUNDARIES[0][1] ||
+      this.pos[1] < this.BOUNDARIES[1][0] ||
+      this.pos[1] > this.BOUNDARIES[0][1]
     ) {
       this.velocity = [0, 0];
       this.motorThrottle = [0, 0];
       this.omega = 0;
       this.active = false;
+      this.distanceTime = Infinity;
     }
   }
 
   #resetAggregates() {
     this.activeTime = 0;
     this.distanceTraveled = 0;
+    this.distanceTime = 0;
+    this.numberOfTargetsReached = 0;
+    this.timeStepsAtTarget = 0;
   }
 
   #resetControls() {
