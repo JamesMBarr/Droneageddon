@@ -38,6 +38,10 @@ class Drone {
     this.numberOfTargetsReached = 0;
     this.timeAtTarget = 0;
 
+    // ANIMATIONS
+    this.intervalId = null;
+    this.TIME_STEP = 20;
+
     if (brain) {
       this.brain = brain;
     } else {
@@ -59,6 +63,14 @@ class Drone {
     this.#resetAggregates();
     this.#resetControls();
     this.#resetDynamicVariables();
+  }
+
+  startAnimation() {
+    this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
+  }
+
+  stopAnimation() {
+    clearInterval(this.intervalId);
   }
 
   /**
@@ -223,6 +235,14 @@ class Drone {
     this.distanceTraveled += this.speed * dt;
     this.distanceFromTargetTime += this.distanceFromTarget * dt;
   }
+
+  /**
+   * Animation frame for a singular drone.
+   */
+  #frame() {
+    droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
+    this.update(this.TIME_STEP);
+    drone.draw(droneCtx, droneCanvas);
   }
 
   #resolveForces() {
