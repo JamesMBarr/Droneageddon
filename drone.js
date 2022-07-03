@@ -136,7 +136,7 @@ class Drone {
    * exhaust "flame" (just an orange block). The size of the "flame" depends on
    * the motor motorThrottle.
    *
-   * TODO: add motor angle!
+   * TODO: fix the coloring issues
    * @param {CanvasRenderingContext2D} ctx
    * @param {HTMLCanvasElement} canvas
    * @param {string|undefined} label
@@ -168,41 +168,40 @@ class Drone {
     ctx.stroke();
 
     // central circle
+    ctx.fillStyle = "black";
     ctx.beginPath();
     ctx.arc(0, 15, 15, Math.PI, -Math.PI, true);
     ctx.fill();
+
     // central red eye
+    ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(0, 15, 5, Math.PI, -Math.PI, true);
-    ctx.fillStyle = "red";
     ctx.fill();
 
     // draw motor
-    for (let index = 0; index < 2; index++) {
-      // prettier-ignore
-      const side = (index + 1) % 2 == 0;
-      const x = ((this.WIDTH - 10) * (side ? 1 : -1)) / 2;
-      const y = this.HEIGHT / 2 + 4;
-      const width = side ? 7 : -7;
+    for (let i = 0; i < 2; i++) {
+      ctx.save();
+      const side = (i + 1) % 2 == 0 ? 1 : -1;
+      ctx.translate((side * this.WIDTH) / 2, this.HEIGHT);
+      ctx.rotate(this.motorAngle[i]);
+      const width = side * 7;
       const height = this.HEIGHT / 2;
 
-      ctx.beginPath();
-      ctx.rect(x, y, width, height);
       ctx.fillStyle = "black";
-      ctx.fill();
+      ctx.fillRect(-width / 2, -height, width, height);
 
       // draw throttle indicator
-      if (this.motorThrottle[index] !== 0) {
-        ctx.beginPath();
-        ctx.rect(
-          x,
-          this.HEIGHT + 4,
-          width * this.motorThrottle[index],
-          height * this.motorThrottle[index]
-        );
+      if (this.motorThrottle[i] !== 0) {
         ctx.fillStyle = "orange";
-        ctx.fill();
+        ctx.fillRect(
+          -width / 2,
+          0,
+          width * this.motorThrottle[i],
+          height * this.motorThrottle[i]
+        );
       }
+      ctx.restore();
     }
 
     ctx.restore();
