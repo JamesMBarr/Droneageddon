@@ -10,14 +10,14 @@ class Drone {
     this.HEIGHT = 30; // pixels
     this.MASS = 0.4; // kg
     // prettier-ignore
-    // this.i = (2 * (this.mass / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
+    // this.i = (2 * (this.MASS / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
     // Experimentally found - calculation doesn't feel right
-    this.I = 20; // kgm2
+    this.I = 10; // kgm^2
     // https://droneomega.com/drone-motor-essentials/
     this.MOTOR_THRUST = 9.81 / 2; // N
     this.BOUNDARIES = boundaries || [
-      [-200, 1000],
-      [-200, 1000],
+      [-5000, 5000],
+      [-5000, 5000],
     ];
 
     // DYNAMICS VARS
@@ -28,7 +28,7 @@ class Drone {
 
     // CONTROL(ish)
     this.motorThrottle = [0, 0]; // ratio
-    this.motorAngle = [-Math.PI / 4, Math.PI / 4];
+    this.motorAngle = [0, 0];
     this.active = true;
 
     // AGGEG METRICS
@@ -43,6 +43,7 @@ class Drone {
     this.TIME_STEP = 20;
 
     if (brain) {
+      /** @type {Brain} */
       this.brain = brain;
     } else {
       this.brain = new Brain();
