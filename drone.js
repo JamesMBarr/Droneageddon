@@ -33,9 +33,9 @@ class Drone {
     // AGGEG METRICS
     this.activeTime = 0; // aggregation of the time spent active
     this.distanceTraveled = 0;
-    this.distanceTime = 0; // product of time and distance
+    this.distanceFromTargetTime = 0; // product of time and distance
     this.numberOfTargetsReached = 0;
-    this.timeStepsAtTarget = 0;
+    this.timeAtTarget = 0;
 
     if (brain) {
       this.brain = brain;
@@ -112,7 +112,7 @@ class Drone {
   setTarget(target) {
     this.target = target;
     this.numberOfTargetsReached += 1;
-    this.timeStepsAtTarget = 0;
+    this.timeAtTarget = 0;
   }
 
   /**
@@ -216,7 +216,8 @@ class Drone {
   #aggregatedMetrics(dt) {
     this.activeTime += dt;
     this.distanceTraveled += this.speed * dt;
-    this.distanceTime += this.distanceFromTarget * dt;
+    this.distanceFromTargetTime += this.distanceFromTarget * dt;
+  }
   }
 
   #resolveForces() {
@@ -275,16 +276,16 @@ class Drone {
       this.motorThrottle = [0, 0];
       this.omega = 0;
       this.active = false;
-      this.distanceTime = Infinity;
+      this.distanceFromTargetTime = Infinity;
     }
   }
 
   #resetAggregates() {
     this.activeTime = 0;
     this.distanceTraveled = 0;
-    this.distanceTime = 0;
+    this.distanceFromTargetTime = 0;
     this.numberOfTargetsReached = 0;
-    this.timeStepsAtTarget = 0;
+    this.timeAtTarget = 0;
   }
 
   #resetControls() {

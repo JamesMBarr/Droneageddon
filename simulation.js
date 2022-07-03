@@ -12,13 +12,51 @@ class Simulation {
     this.generation = 0; // counter
     this.intervalId = 0;
 
+    /**
+     * TODO: generate some random points
+     * @type {Target[]}
+     */
+    this.targetSet = [
+      new Target([775, 752]),
+      new Target([814, 124]),
+      new Target([509, 370]),
+      new Target([894, 519]),
+      new Target([194, 579]),
+      new Target([611, 506]),
+      new Target([600, 481]),
+      new Target([188, 251]),
+    ];
+
     // start with random drones
     this.drones = [];
     for (let i = 0; i < this.GENERATION_SIZE; i++) {
-      this.drones.push(new Drone());
+      this.drones.push(new Drone(undefined, this.targetSet[0]));
     }
     // moving this into a getter causes performance issues
     this.activeDrones = this.drones;
+  }
+
+  /**
+   * @param {Drone} drone
+   */
+  updateDrone(drone) {
+    drone.update(this.TIME_STEP);
+
+    if (drone.distanceFromTarget < 10) {
+      drone.timeAtTarget += this.TIME_STEP;
+
+      // consider target reached when drone has been within target radius
+      // for 0.5 sec
+      if (drone.timeAtTarget > 500) {
+        drone.setTarget(
+          this.targetSet[
+            (drone.numberOfTargetsReached + 1) % this.targetSet.length
+          ]
+        );
+      }
+    } else {
+      drone.timeAtTarget = 0;
+    }
   }
 
   /**
@@ -26,16 +64,20 @@ class Simulation {
    * reached.
    */
   train() {
+    let generationDuration = 0;
+
     // while (this.activeDrones[0].fitness < this.TARGET_FITNESS) {
     while (this.generation < this.NUMBER_OF_GENERATIONS) {
-      if (this.activeDrones.length > this.NUMBER_OF_DRONES_AT_TARGET) {
+      // run a generation to a maximum of 1 minute
+      if (generationDuration < 120 * 1e3) {
         for (let i = 0; i < this.activeDrones.length; i++) {
-          const drone = this.activeDrones[i];
-          drone.update(this.TIME_STEP);
+          this.updateDrone(this.activeDrones[i]);
         }
         this.activeDrones = this.activeDrones.filter((d) => d.active);
+        generationDuration += this.TIME_STEP;
       } else {
         this.#startNextGeneration();
+        generationDuration = 0;
       }
     }
   }
@@ -60,13 +102,19 @@ class Simulation {
   #frame() {
     droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
 
+    // draw targets
+    for (let i = 0; i < this.targetSet.length; i++) {
+      const target = this.targetSet[i];
+      target.draw(droneCtx, droneCanvas, i);
+    }
+
     for (
       let i = 0;
       i < Math.min(this.NUMBER_TO_DRAW, this.activeDrones.length);
       i++
     ) {
       const drone = this.activeDrones[i];
-      drone.update(this.TIME_STEP);
+      this.updateDrone(drone);
       drone.draw(droneCtx, droneCanvas, i);
     }
 
@@ -92,10 +140,16 @@ class Simulation {
       drone.reset();
     }
 
+
+    const startingNextGenerationLength = nextGeneration.length;
     const top50Percentage = this.#selectTopPercentage(0.5);
     // populate the remaining generation from child from the top 50% drones
     // TODO: make the probability of selection depend on the fitness
-    for (let i = 0; i < this.GENERATION_SIZE - nextGeneration.length; i++) {
+    for (
+      let i = 0;
+      i < this.GENERATION_SIZE - startingNextGenerationLength;
+      i++
+    ) {
       const parent1 =
         top50Percentage[Math.floor(Math.random() * top50Percentage.length)];
       const parent2 =
@@ -104,7 +158,11 @@ class Simulation {
       const child = parent1.mate(parent2);
       child.brain.mutate();
 
-      nextGeneration.push(parent1.mate(parent2));
+      nextGeneration.push(child);
+    }
+
+    for (const drone of nextGeneration) {
+      drone.target = this.targetSet[0];
     }
 
     return nextGeneration;
@@ -135,6 +193,12 @@ class Simulation {
    * Current generation of drones ordered by the drone fitness.
    */
   get sortedDrones() {
-    return this.drones.sort((a, b) => b.fitness - a.fitness);
+    return this.drones.sort(
+      (a, b) =>
+        b.active - a.active ||
+        b.numberOfTargetsReached - a.numberOfTargetsReached ||
+        a.distanceFromTargetTime - b.distanceFromTargetTime ||
+        b.activeTime - a.activeTime
+    );
   }
 }
