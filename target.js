@@ -13,9 +13,20 @@ class Target {
    * @param {HTMLCanvasElement} canvas
    * @param {string|undefined} label
    */
-  draw(ctx, canvas) {
+  draw(ctx, canvas, label) {
+    ctx.save();
     const yMod = canvas.height - this.pos[1];
 
+    if (label !== undefined) {
+      ctx.font = "24px serif";
+      ctx.fillText(label, this.pos[0], yMod - 10);
+      ctx.fill();
+    }
+
+    ctx.beginPath();
     ctx.arc(this.pos[0], yMod, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.restore();
   }
 }
