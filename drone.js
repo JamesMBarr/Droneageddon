@@ -4,7 +4,7 @@ class Drone {
    * @param {Target} target
    * @param {number[][]} boundaries
    */
-  constructor(brain, target, boundaries) {
+  constructor(brain, target, boundaries, controls) {
     // CONSTS
     this.WIDTH = 100; // pixels
     this.HEIGHT = 30; // pixels
@@ -49,7 +49,7 @@ class Drone {
     }
 
     /** @type {Control} */
-    this.controls = null;
+    this.controls = controls;
     /** @type {Target} */
     this.target = target || new Target([0, 0]);
 
