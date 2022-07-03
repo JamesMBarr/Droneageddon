@@ -1,11 +1,11 @@
 class Simulation {
   constructor() {
-    this.GENERATION_SIZE = 1000;
+    this.GENERATION_SIZE = 100;
     this.NUMBER_TO_DRAW = 10;
     this.TIME_STEP = 16; // ms
 
     // TARGET
-    this.NUMBER_OF_GENERATIONS = 10;
+    this.NUMBER_OF_GENERATIONS = 50;
     this.TARGET_FITNESS = 1 * 60 * 1e3;
     this.NUMBER_OF_DRONES_AT_TARGET = 10;
 
@@ -133,13 +133,17 @@ class Simulation {
    */
   #calculateNextGeneration() {
     // next generation contains top 10% of the current generation
-    const nextGeneration = this.#selectTopPercentage(0.1);
+    const nextGeneration = this.#selectTopPercentage(0.4);
 
     // reset drones from the previous generation
     for (const drone of nextGeneration) {
       drone.reset();
     }
 
+    // // fresh blood!
+    // for (let i = 0; i < Math.round(this.GENERATION_SIZE * 0.1); i++) {
+    //   nextGeneration.push(new Drone());
+    // }
 
     const startingNextGenerationLength = nextGeneration.length;
     const top50Percentage = this.#selectTopPercentage(0.5);
@@ -182,9 +186,27 @@ class Simulation {
    * Starts the next generation and increments the generation counter.
    */
   #startNextGeneration() {
-    console.log(this.generation, this.sortedDrones[0].fitness);
-    const nextGeneration = this.#calculateNextGeneration();
-    this.drones = nextGeneration;
+    console.log(this.generation);
+    console.log(
+      this.sortedDrones[0].active,
+      this.sortedDrones[0].numberOfTargetsReached,
+      this.sortedDrones[0].distanceFromTargetTime,
+      this.sortedDrones[0].activeTime
+    );
+    console.log(
+      this.sortedDrones[1].active,
+      this.sortedDrones[1].numberOfTargetsReached,
+      this.sortedDrones[1].distanceFromTargetTime,
+      this.sortedDrones[1].activeTime
+    );
+    console.log(
+      this.sortedDrones[this.GENERATION_SIZE - 1].active,
+      this.sortedDrones[this.GENERATION_SIZE - 1].numberOfTargetsReached,
+      this.sortedDrones[this.GENERATION_SIZE - 1].distanceFromTargetTime,
+      this.sortedDrones[this.GENERATION_SIZE - 1].activeTime
+    );
+
+    this.drones = this.#calculateNextGeneration();
     this.activeDrones = this.drones;
     this.generation++;
   }
