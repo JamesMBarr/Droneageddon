@@ -2,8 +2,8 @@ class Brain {
   constructor() {
     // CONSTS
     this.NUMBER_OF_INPUTS = 6;
-    this.NUMBER_OF_OUTPUTS = 2;
-    this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS = [8];
+    this.NUMBER_OF_OUTPUTS = 4;
+    this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS = [12, 6];
     this.MUTATION_RATE = 0.01;
     this.RANDOM_VALUE_LIMIT = 2;
 
@@ -23,14 +23,21 @@ class Brain {
    * @returns {numbers[]} motor throttle as left then right motor
    * @throws if the input array is not the expected length
    */
-  calculateThrottle(inputs) {
+  calculateDroneControls(inputs) {
     if (inputs.length !== this.NUMBER_OF_INPUTS) {
       throw Error(`Number of inputs must be ${this.NUMBER_OF_INPUTS}`);
     }
 
     const outputs = this.#feedForward(inputs);
-    // normalise output between 0-1
-    return [(outputs[0] + 1) / 2, (outputs[1] + 1) / 2];
+
+    return [
+      // normalise output between 0-1
+      (outputs[0] + 1) / 2,
+      (outputs[1] + 1) / 2,
+      // normalise output between -0.25Math.PI and +0.25Math.PI
+      (outputs[2] * Math.PI) / 0.25,
+      (outputs[3] * Math.PI) / 0.25,
+    ];
   }
 
   /**

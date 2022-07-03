@@ -28,6 +28,7 @@ class Drone {
 
     // CONTROL(ish)
     this.motorThrottle = [0, 0]; // ratio
+    this.motorAngle = [-Math.PI / 4, Math.PI / 4];
     this.active = true;
 
     // AGGEG METRICS
@@ -75,7 +76,7 @@ class Drone {
         this.controls.right ? 1 : 0,
       ];
     } else if (this.brain) {
-      this.motorThrottle = this.brain.calculateThrottle([
+      const output = this.brain.calculateDroneControls([
         (this.target.pos[0] - this.pos[0]) / 1e3,
         (this.target.pos[1] - this.pos[1]) / 1e3,
         this.velocity[0] / 1e3,
@@ -83,6 +84,9 @@ class Drone {
         this.theta,
         this.omega,
       ]);
+
+      this.motorThrottle = [output[0], output[1]];
+      this.motorAngle = [output[2], output[3]];
     }
 
     this.#move(dt);
@@ -119,15 +123,14 @@ class Drone {
    * Basic illustration of a drone. Adds a label if it is defined. Draws "motor"
    * exhaust "flame" (just an orange block). The size of the "flame" depends on
    * the motor motorThrottle.
+   *
+   * TODO: add motor angle!
    * @param {CanvasRenderingContext2D} ctx
    * @param {HTMLCanvasElement} canvas
    * @param {string|undefined} label
    */
   draw(ctx, canvas, label) {
     ctx.save();
-
-    // drone frame triangle
-    ctx.beginPath();
 
     // wrap the x-axis
     const xMod =
@@ -144,6 +147,8 @@ class Drone {
       ctx.fill();
     }
 
+    // drone frame triangle
+    ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(this.WIDTH / 2, this.HEIGHT);
     ctx.lineTo(-this.WIDTH / 2, this.HEIGHT);
@@ -230,12 +235,20 @@ class Drone {
     const force = [
       GRAVITY[0] * this.MASS +
         springForce[0] +
-        this.MOTOR_THRUST * this.motorThrottle[0] * Math.sin(this.theta) +
-        this.MOTOR_THRUST * this.motorThrottle[1] * Math.sin(this.theta),
+        this.MOTOR_THRUST *
+          this.motorThrottle[0] *
+          Math.sin(this.theta + this.motorAngle[0]) +
+        this.MOTOR_THRUST *
+          this.motorThrottle[1] *
+          Math.sin(this.theta + this.motorAngle[1]),
       GRAVITY[1] * this.MASS +
         springForce[1] +
-        this.MOTOR_THRUST * this.motorThrottle[0] * Math.cos(this.theta) +
-        this.MOTOR_THRUST * this.motorThrottle[1] * Math.cos(this.theta),
+        this.MOTOR_THRUST *
+          this.motorThrottle[0] *
+          Math.cos(this.theta + this.motorAngle[0]) +
+        this.MOTOR_THRUST *
+          this.motorThrottle[1] *
+          Math.cos(this.theta + this.motorAngle[1]),
     ]; // N
 
     return force;
