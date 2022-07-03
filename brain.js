@@ -35,8 +35,8 @@ class Brain {
       (outputs[0] + 1) / 2,
       (outputs[1] + 1) / 2,
       // normalise output between -0.25Math.PI and +0.25Math.PI
-      (outputs[2] * Math.PI) / 0.25,
-      (outputs[3] * Math.PI) / 0.25,
+      outputs[2] * Math.PI * 0.25,
+      outputs[3] * Math.PI * 0.25,
     ];
   }
 
