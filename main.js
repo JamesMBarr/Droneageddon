@@ -11,8 +11,34 @@ window.addEventListener("resize", () => {
 
 const droneCtx = droneCanvas.getContext("2d");
 
-const GRAVITY = [0, -9.81];
+const closeMenu = () => {
+  const menu = document.getElementById("menu");
+  menu.classList.add("hide");
 
-const simulation = new Simulation();
-simulation.train();
-simulation.startAnimation();
+  const menuButton = document.getElementById("menu-button");
+  menuButton.classList.remove("hide");
+};
+
+const openMenu = () => {
+  const menu = document.getElementById("menu");
+  menu.classList.remove("hide");
+
+  const menuButton = document.getElementById("menu-button");
+  menuButton.classList.add("hide");
+};
+
+let selfDriveDrone = null;
+const startSelfDriveDrone = () => {
+  closeMenu();
+
+  if (selfDriveDrone !== null) {
+    selfDriveDrone.stopAnimation();
+  }
+
+  const controls = new Controls();
+  selfDriveDrone = new Drone(undefined, controls);
+  selfDriveDrone.startAnimation();
+};
+
+
+// simulationWorker.postMessage({ message: "train" });

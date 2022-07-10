@@ -271,7 +271,13 @@ class Drone {
   #frame() {
     droneCtx.clearRect(0, 0, droneCanvas.width, droneCanvas.height);
     this.update(this.TIME_STEP);
-    drone.draw(droneCtx, droneCanvas);
+    this.draw(droneCtx, droneCanvas);
+
+    // if no longer active stop the animation and open menu
+    if (!this.active) {
+      openMenu();
+      this.stopAnimation();
+    }
   }
 
   #resolveForces() {

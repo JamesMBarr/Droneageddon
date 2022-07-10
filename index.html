@@ -1,18 +1,54 @@
 <!DOCTYPE html>
 <head>
     <title>Self-driving drones</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="Author" content="James Barr">
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <canvas id="droneCanvas"></canvas>
     <script src="classes/drone.js"></script>
-    <!-- <script src="spring.js"></script> -->
     <script src="classes/controls.js"></script>
     <script src="classes/brain.js"></script>
     <script src="classes/display.js"></script>
     <script src="classes/simulation.js"></script>
     <script src="classes/target.js"></script>
     <script src="helpers.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="menu">
+            <h1>Droneageddon &#9889;</h1>
+            <h3>
+                Droneageddon is a simple drone simulator which uses reinforcement
+                learning to train drones to track targets!
+            </h3>
+            <p>
+                Do you want to try flying one yourself? <br /><br />
+
+                Use the &#8592; and &#8594; keys to drive the left and right
+                motor respectively. Heads up it isn't easy &#128514;
+            </p>
+            <div class="button-container">
+                <button onclick="startSelfDriveDrone()">Fly now!</button>
+            </div>
+            <p>
+                Don't fancy flying yourself? Try training some drones. Warning
+                this will take sometime!
+            </p>
+            <div class="button-container">
+                <button onclick="alert('Not implemented yet')">Train some?</button>
+            </div>
+            <p>
+                Can't avoid the time? Load a already training drone and try it
+                out.
+            </p>
+            <div class="button-container">
+                <button onclick="alert('Not implemented yet')">Load a smart one &#129299;</button>
+            </div>
+        </div>
+    </div>
+    <div id="menu-button" class="hide" onclick="openMenu()">
+        Menu &#127828;
+    </div>
+    <canvas id="droneCanvas"></canvas>
     <script src="main.js"></script>
 </body>
 </html>
