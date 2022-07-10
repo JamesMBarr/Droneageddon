@@ -30,7 +30,10 @@ class Simulation {
     // start with random drones
     this.drones = [];
     for (let i = 0; i < this.GENERATION_SIZE; i++) {
-      this.drones.push(new Drone(undefined, this.targetSet[0]));
+      const drone = new Drone();
+      // manually set the target on the drone to prevent increment targets reached
+      drone.target = this.targetSet[0];
+      this.drones.push(drone);
     }
     // moving this into a getter causes performance issues
     this.activeDrones = this.drones;

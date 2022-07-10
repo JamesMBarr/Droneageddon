@@ -4,7 +4,9 @@ class Drone {
    * @param {Target} target
    * @param {number[][]} boundaries
    */
-  constructor(brain, target, boundaries, controls) {
+  constructor(brain, controls) {
+    this.id = generateId();
+
     // CONSTS
     this.WIDTH = 100; // pixels
     this.HEIGHT = 30; // pixels
@@ -15,14 +17,14 @@ class Drone {
     this.I = 10; // kgm^2
     // https://droneomega.com/drone-motor-essentials/
     this.MOTOR_THRUST = 9.81 / 2; // N
-    this.BOUNDARIES = boundaries || [
+    this.BOUNDARIES = [
       [-5000, 5000],
       [-5000, 5000],
     ];
     this.GRAVITY = [0, -9.81];
 
     // DYNAMICS VARS
-    this.pos = [0, 0]; // pixels
+    this.pos = [250, 250]; // pixels
     this.velocity = [0, 0]; // ms-1
     this.theta = 0; // rad
     this.omega = 0; // rads-1
@@ -53,9 +55,29 @@ class Drone {
     /** @type {Control} */
     this.controls = controls;
     /** @type {Target} */
-    this.target = target || new Target([0, 0]);
+    this.target = new Target([0, 0]);
+  }
 
-    this.reset();
+  /**
+   * Reconstructs a drone from the data passed back by a Web Worker running a
+   * simulation.
+   * @param {any} data - drone data from the worker
+   * @returns {Drone} clone of the drone
+   */
+  static fromWorker(data) {
+    const brain = new Brain(data.brain.weights, data.brain.bias);
+    brain.id = data.brain.id;
+    const drone = new Drone(brain);
+
+    drone.id = data.id;
+    drone.active = data.active;
+    drone.activeTime = data.activeTime;
+    drone.totalDistanceTraveled = data.totalDistanceTraveled;
+    drone.distanceFromTargetTime = data.distanceFromTargetTime;
+    drone.numberOfTargetsReached = data.numberOfTargetsReached;
+    drone.timeAtTarget = data.timeAtTarget;
+
+    return drone;
   }
 
   /**
@@ -315,10 +337,10 @@ class Drone {
       this.active = false;
 
       if (updateMetric) {
-      this.velocity = [0, 0];
-      this.motorThrottle = [0, 0];
-      this.omega = 0;
-      this.distanceFromTargetTime = Infinity;
+        this.velocity = [0, 0];
+        this.motorThrottle = [0, 0];
+        this.omega = 0;
+        this.distanceFromTargetTime = Infinity;
       }
     }
   }
