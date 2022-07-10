@@ -19,6 +19,7 @@ class Drone {
       [-5000, 5000],
       [-5000, 5000],
     ];
+    this.GRAVITY = [0, -9.81];
 
     // DYNAMICS VARS
     this.pos = [0, 0]; // pixels
@@ -259,7 +260,7 @@ class Drone {
     }
 
     const force = [
-      GRAVITY[0] * this.MASS +
+      this.GRAVITY[0] * this.MASS +
         springForce[0] +
         this.MOTOR_THRUST *
           this.motorThrottle[0] *
@@ -267,7 +268,7 @@ class Drone {
         this.MOTOR_THRUST *
           this.motorThrottle[1] *
           Math.sin(this.theta + this.motorAngle[1]),
-      GRAVITY[1] * this.MASS +
+      this.GRAVITY[1] * this.MASS +
         springForce[1] +
         this.MOTOR_THRUST *
           this.motorThrottle[0] *
