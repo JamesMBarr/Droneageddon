@@ -66,6 +66,11 @@ class Drone {
     this.#resetDynamicVariables();
   }
 
+  resetControlsAndVariables() {
+    this.#resetControls();
+    this.#resetDynamicVariables();
+  }
+
   startAnimation() {
     this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
   }
@@ -81,8 +86,9 @@ class Drone {
    * - Moving the drone and applying dynamics
    * - Calculating the aggregated metrics
    * @param {number} dt - time step in milliseconds
+   * @param {boolean} updateMetric - whether to update a drones metrics
    */
-  update(dt) {
+  update(dt, updateMetric = true) {
     if (this.controls) {
       this.motorThrottle = [
         this.controls.left ? 1 : 0,
@@ -102,9 +108,9 @@ class Drone {
       this.motorAngle = [output[2], output[3]];
     }
 
-    this.#move(dt);
+    this.#move(dt, updateMetric);
 
-    this.#aggregatedMetrics(dt);
+    if (updateMetric) this.#aggregatedMetrics(dt);
   }
 
   /**
@@ -281,22 +287,22 @@ class Drone {
     ); // Nm
   }
 
-  #move(dt) {
+  #move(dt, updateMetric = true) {
     // do nothing if dt is NaN
     if (isNaN(dt)) return;
 
     // convert dt into seconds
-    const dt_s = dt / 1000;
+    const dtInSeconds = dt / 1000;
 
     let force = this.#resolveForces();
     for (let dim = 0; dim < 2; dim++) {
-      this.velocity[dim] += (force[dim] / this.MASS) * dt_s;
+      this.velocity[dim] += (force[dim] / this.MASS) * dtInSeconds;
       // multiple by 50 to convert 500 pixels into 10m
-      this.pos[dim] = this.pos[dim] + this.velocity[dim] * dt_s * 50;
+      this.pos[dim] = this.pos[dim] + this.velocity[dim] * dtInSeconds * 50;
     }
 
-    this.omega += (this.#calculateTorque() / this.I) * dt_s;
-    this.theta += this.omega * dt_s;
+    this.omega += (this.#calculateTorque() / this.I) * dtInSeconds;
+    this.theta += this.omega * dtInSeconds;
 
     // TODO: basic collision needs improving
     if (
@@ -305,11 +311,14 @@ class Drone {
       this.pos[1] < this.BOUNDARIES[1][0] ||
       this.pos[1] > this.BOUNDARIES[0][1]
     ) {
+      this.active = false;
+
+      if (updateMetric) {
       this.velocity = [0, 0];
       this.motorThrottle = [0, 0];
       this.omega = 0;
-      this.active = false;
       this.distanceFromTargetTime = Infinity;
+      }
     }
   }
 

@@ -6,8 +6,8 @@ class Simulation {
 
     // TARGET
     this.NUMBER_OF_GENERATIONS = 50;
-    this.TARGET_FITNESS = 1 * 60 * 1e3;
-    this.NUMBER_OF_DRONES_AT_TARGET = 10;
+    this.MAX_DURATION_GENERATION = 60; // s
+    this.MIN_DURATION_AT_TARGET = 0.5; // s
 
     this.generation = 0; // counter
     this.intervalId = 0;
@@ -38,16 +38,17 @@ class Simulation {
 
   /**
    * @param {Drone} drone
+   * @param {boolean} updateMetric - whether to update a drones metrics
    */
-  updateDrone(drone) {
-    drone.update(this.TIME_STEP);
+  updateDrone(drone, updateMetric) {
+    drone.update(this.TIME_STEP, updateMetric);
 
     if (drone.distanceFromTarget < 10) {
       drone.timeAtTarget += this.TIME_STEP;
 
       // consider target reached when drone has been within target radius
       // for 0.5 sec
-      if (drone.timeAtTarget > 500) {
+      if (drone.timeAtTarget > this.MIN_DURATION_AT_TARGET * 1e3) {
         drone.setTarget(
           this.targetSet[
             (drone.numberOfTargetsReached + 1) % this.targetSet.length
@@ -69,7 +70,7 @@ class Simulation {
     // while (this.activeDrones[0].fitness < this.TARGET_FITNESS) {
     while (this.generation < this.NUMBER_OF_GENERATIONS) {
       // run a generation to a maximum of 1 minute
-      if (generationDuration < 120 * 1e3) {
+      if (generationDuration < this.MAX_DURATION_GENERATION * 1e3) {
         for (let i = 0; i < this.activeDrones.length; i++) {
           this.updateDrone(this.activeDrones[i]);
         }
@@ -87,12 +88,24 @@ class Simulation {
    */
   startAnimation() {
     // only want to draw the top NUMBER_TO_DRAW
-    this.activeDrones = this.activeDrones.splice(0, this.NUMBER_TO_DRAW);
+    this.activeDrones = [];
+    for (let i = 0; i < this.NUMBER_TO_DRAW; i++) {
+      this.activeDrones.push(this.sortedDrones[i]);
+    }
+
     this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
   }
 
+  /**
+   * Stops the animation and resets the drones controls and variables.
+   */
   stopAnimation() {
     clearInterval(this.intervalId);
+
+    // reset the dynamic variables and controls for the drawn drones
+    for (let i = 0; i < this.NUMBER_TO_DRAW; i++) {
+      this.sortedDrones[i].resetControlsAndVariables();
+    }
   }
 
   /**
@@ -114,7 +127,7 @@ class Simulation {
       i++
     ) {
       const drone = this.activeDrones[i];
-      this.updateDrone(drone);
+      this.updateDrone(drone, false);
       drone.draw(droneCtx, droneCanvas, i);
     }
 
