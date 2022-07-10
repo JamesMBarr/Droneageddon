@@ -1,5 +1,12 @@
 class Brain {
-  constructor() {
+  constructor(weights, bias) {
+    this.id = generateId();
+
+    if ((weights && !bias) || (bias && !weights))
+      throw Error(
+        "Weight and bias must be both passed to constructor or neither."
+      );
+
     // CONSTS
     this.NUMBER_OF_INPUTS = 6;
     this.NUMBER_OF_OUTPUTS = 4;
@@ -8,11 +15,12 @@ class Brain {
     this.RANDOM_VALUE_LIMIT = 2;
 
     // NEURAL NETWORK
-    this.weights = [];
-    this.bias = [];
+    this.weights = weights || [];
+    this.bias = bias || [];
     this.nodeValues = [];
 
-    this.#initialiseWeightsAndBias();
+    if (weights) this.#initialiseValuesOnly();
+    else this.#initialiseWeightsAndBias();
   }
 
   /**
@@ -194,6 +202,22 @@ class Brain {
    */
   #generateRandomArray(length, min, max) {
     return Array.from({ length }, () => Math.random() * (max - min) + min);
+  }
+
+  /**
+   * Initalises the node values only to 0.
+   */
+  #initialiseValuesOnly() {
+    // loop over all the layers
+    for (let layer = 0; layer < this.#numberOfHiddenLayers + 1; layer++) {
+      const numberOfInCurrentLayer =
+        layer === this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS.length
+          ? this.NUMBER_OF_OUTPUTS
+          : this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS[layer];
+
+      // set initial node values to 0
+      this.nodeValues.push(new Array(numberOfInCurrentLayer).fill(0));
+    }
   }
 
   /**
