@@ -332,6 +332,7 @@ class Drone {
 
   #resetControls() {
     this.motorThrottle = [0.21, 0.21];
+    this.motorAngle = [0, 0];
     this.active = true;
   }
 
