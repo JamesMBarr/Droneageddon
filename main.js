@@ -10,6 +10,7 @@ window.addEventListener("resize", () => {
 });
 
 const droneCtx = droneCanvas.getContext("2d");
+const controls = new Controls();
 
 const closeMenu = () => {
   const menu = document.getElementById("menu");
@@ -35,7 +36,6 @@ const startSelfDriveDrone = () => {
     selfDriveDrone.stopAnimation();
   }
 
-  const controls = new Controls();
   selfDriveDrone = new Drone(undefined, controls);
   selfDriveDrone.startAnimation();
 };

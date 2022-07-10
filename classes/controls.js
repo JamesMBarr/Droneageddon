@@ -7,8 +7,8 @@ class Controls {
   }
 
   #addKeyboardListeners() {
-    document.onkeydown = (event) => {
-      switch (event.key) {
+    document.onkeydown = (e) => {
+      switch (e.key) {
         case "ArrowLeft":
           this.left = true;
           break;
@@ -17,13 +17,21 @@ class Controls {
           break;
       }
     };
-    document.onkeyup = (event) => {
-      switch (event.key) {
+    document.onkeyup = (e) => {
+      switch (e.key) {
         case "ArrowLeft":
           this.left = false;
           break;
         case "ArrowRight":
           this.right = false;
+          break;
+        case "m":
+        case "M":
+          openMenu();
+          break;
+        case "f":
+        case "F":
+          startSelfDriveDrone();
           break;
       }
     };
