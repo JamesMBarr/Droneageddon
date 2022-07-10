@@ -95,6 +95,8 @@ class Drone {
   }
 
   startAnimation() {
+    // when animating start from the center of the canvas
+    this.pos = [droneCanvas.width / 2, droneCanvas.height / 2];
     this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
   }
 
