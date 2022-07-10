@@ -33,7 +33,7 @@ class Drone {
 
     // AGGEG METRICS
     this.activeTime = 0; // aggregation of the time spent active
-    this.distanceTraveled = 0;
+    this.totalDistanceTraveled = 0; // total distance traveled by drone
     this.distanceFromTargetTime = 0; // product of time and distance
     this.numberOfTargetsReached = 0;
     this.timeAtTarget = 0;
@@ -238,7 +238,7 @@ class Drone {
    */
   #aggregatedMetrics(dt) {
     this.activeTime += dt;
-    this.distanceTraveled += this.speed * dt;
+    this.totalDistanceTraveled += this.speed * dt;
     this.distanceFromTargetTime += this.distanceFromTarget * dt;
   }
 
@@ -324,7 +324,7 @@ class Drone {
 
   #resetAggregates() {
     this.activeTime = 0;
-    this.distanceTraveled = 0;
+    this.totalDistanceTraveled = 0;
     this.distanceFromTargetTime = 0;
     this.numberOfTargetsReached = 0;
     this.timeAtTarget = 0;
