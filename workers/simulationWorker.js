@@ -5,16 +5,25 @@ importScripts("../classes/Brain.js");
 importScripts("../helpers.js");
 
 /** @type {Simulation} */
-const sim = new Simulation();
+const simulation = new Simulation();
 
 self.onmessage = function (e) {
   console.log(e);
   if (e.data === "TRAIN") {
-    sim.train();
+    simulation.train(() =>
+      self.postMessage({
+        type: "GENERATION_TRAINED",
+        stats: {
+          gen: simulation.gen,
+          maxNumberOfTargetsReached:
+            simulation.sortedDrones[0].numberOfTargetsReached,
+        },
+      })
+    );
   }
 
   if (e.data === "STOP") {
-    sim.cancelTraining();
-    self.postMessage(sim);
+    simulation.cancelTraining();
+    self.postMessage({ type: "STOPPED", simulation });
   }
 };

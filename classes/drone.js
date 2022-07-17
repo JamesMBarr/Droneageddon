@@ -43,7 +43,7 @@ class Drone {
 
     // ANIMATIONS
     this.intervalId = null;
-    this.TIME_STEP = 20;
+    this.TIME_STEP = 16;
 
     if (brain) {
       /** @type {Brain} */
@@ -277,7 +277,7 @@ class Drone {
 
     // if no longer active stop the animation and open menu
     if (!this.active) {
-      openMenu();
+      openMainMenu();
       this.stopAnimation();
     }
   }

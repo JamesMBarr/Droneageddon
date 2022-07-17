@@ -50,9 +50,33 @@ const startSelfDriveDrone = () => {
 };
 
 let simulation = null;
+let gen = 0;
+let maxNumberOfTargetsReached = 0;
+
+const setStat = (id, value) => {
+  const genValue = document.querySelector(`#${id} .value`);
+  genValue.innerHTML = value;
+};
+
+const setStats = () => {
+  setStat("stat-gen", gen);
+  setStat("stat-target", maxNumberOfTargetsReached);
+};
+
 const simulationWorker = new Worker("./workers/simulationWorker.js");
 simulationWorker.onmessage = function (e) {
-  simulation = Simulation.formWorker(e.data);
+  switch (e.data.type) {
+    case "STOPPED":
+      simulation = Simulation.formWorker(e.data.simulation);
+      break;
+    case "GENERATION_TRAINED":
+      gen = e.data.stats.gen;
+      maxNumberOfTargetsReached = e.data.stats.maxNumberOfTargetsReached;
+      setStats();
+      break;
+    default:
+      break;
+  }
 };
 simulationWorker.onmessageerror = function (event) {
   console.error("Simulation worker => ", event);

@@ -10,7 +10,7 @@ class Simulation {
 
     this.intervalId = 0;
 
-    this.generation = 0; // counter
+    this.gen = 0; // counter
     this.intervalId = 0;
 
     /**
@@ -52,7 +52,7 @@ class Simulation {
     sim.MAX_DURATION_GENERATION = data.MAX_DURATION_GENERATION;
     sim.MIN_DURATION_AT_TARGET = data.MIN_DURATION_AT_TARGET;
 
-    sim.generation = sim.generation;
+    sim.gen = sim.gen;
 
     sim.drones = data.drones.map((d) => Drone.fromWorker(d));
     return sim;
@@ -85,13 +85,16 @@ class Simulation {
   /**
    * Train the a series of generations of drones until interval is cancelled by
    * cancel training. Using interval to allow for cancelling.
+   *
+   * @param {function} callback - function called after training a generation
    */
-  train() {
+  train(callback) {
     this.trainGeneration();
 
     this.intervalId = setInterval(() => {
       this.#startNextGeneration();
       this.trainGeneration();
+      if (callback) callback();
     }, 50);
   }
 
@@ -233,7 +236,7 @@ class Simulation {
    * Starts the next generation and increments the generation counter.
    */
   #startNextGeneration() {
-    console.log(this.generation);
+    console.log(this.gen);
     console.log(
       this.sortedDrones[0].active,
       this.sortedDrones[0].numberOfTargetsReached,
@@ -255,7 +258,7 @@ class Simulation {
 
     this.drones = this.#calculateNextGeneration();
     this.activeDrones = this.drones;
-    this.generation++;
+    this.gen++;
   }
 
   /**
