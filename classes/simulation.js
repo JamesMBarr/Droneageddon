@@ -127,7 +127,9 @@ class Simulation {
     // only want to draw the top NUMBER_TO_DRAW
     this.activeDrones = [];
     for (let i = 0; i < this.NUMBER_TO_DRAW; i++) {
-      this.activeDrones.push(this.sortedDrones[i]);
+      const drone = this.sortedDrones[i];
+      drone.resetControlsAndVariables();
+      this.activeDrones.push(drone);
     }
 
     this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
@@ -138,11 +140,14 @@ class Simulation {
    */
   stopAnimation() {
     clearInterval(this.intervalId);
+    this.intervalId = 0;
 
     // reset the dynamic variables and controls for the drawn drones
     for (let i = 0; i < this.NUMBER_TO_DRAW; i++) {
       this.sortedDrones[i].resetControlsAndVariables();
     }
+
+    showBySelector("#training-menu");
   }
 
   /**

@@ -11,6 +11,7 @@
     <script src="classes/simulation.js"></script>
     <script src="classes/target.js"></script>
     <script src="helpers.js"></script>
+    <script src="uiControls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -26,49 +27,65 @@
                 Use the &#8592; and &#8594; keys to drive the left and right
                 motor respectively. Heads up it isn't easy &#128514;
             </p>
-            <div class="button-container">
+            <div class="center-container">
                 <button onclick="startSelfDriveDrone()">(F)ly now!</button>
             </div>
             <p>
                 Don't fancy flying yourself? Try training some drones. Warning
                 this will take sometime!
             </p>
-            <div class="button-container">
+            <div class="center-container">
                 <button onclick="openTrainingMenu()">(T)rain some?</button>
             </div>
             <p>
                 Can't avoid the time? Load a already training drone and try it
                 out.
             </p>
-            <div class="button-container">
+            <div class="center-container">
                 <button onclick="alert('Not implemented yet')">(L)oad a smart one &#129299;</button>
             </div>
         </div>
         <div id="training-menu" class="menu hide">
             <h2>Training your minions!</h2>
+            <div class="center-container">
+                <p id="status">
+                    <span class="value">Not started yet!</span>
+                </p>
+            </div>
+            <div class="stats">
+                <div id="stat-gen" class="stat">
+                    <p>Generation: <span class="value">0</span></p>
+                </div>
+                <div id="stat-target" class="stat">
+                    <p>Number of targets reached: <span class="value">0</span></p>
+                </div>
+            </div>
             <div class="warning">
                 <div class="warning-icon">
                     !
                 </div>
-                Run this at your own risk! This is computationally expensive and
-                may cause your browser to crash &#128293;
+                Training drones is computationally expensive and may take
+                time. Run at your own risk &#128293;
             </div>
-            <div id="stat-gen" class="stat">
-                <p>Generation: <span class="value">0</span></p>
-            </div>
-            <div id="stat-target" class="stat">
-                <p>Number of targets reached: <span class="value">0</span></p>
-            </div>
-            <div class="button-container" style="margin-top: 1rem;">
-                <button onclick="startTraining()">(B)egin training &#128591;</button>
-                <div class="spacer"></div>
-                <button onclick="stopTraining()">(S)TOOOOOP!</button>
+            <div class="buttons-container">
+                <div class="center-container" style="margin-top: 1rem;">
+                    <button onclick="startTraining()">(B)egin training &#128591;</button>
+                    <div class="spacer"></div>
+                    <button onclick="stopTraining()" style="margin-right: 66px;">(S)TOOOOOP!</button>
+                </div>
+                <div class="center-container" style="margin-top: 1rem;">
+                    <button id="animation-button" disabled onclick="startAnimation()">Start (A)mination</button>
+                </div>
             </div>
         </div>
     </div>
-    <div id="menu-button" class="hide" onclick="openMainMenu()">
-        (M)enu &#127828;
+    <div class="top-controls hide">
+        <div id="menu-button" onclick="openMainMenu()">
+            (M)enu &#127828;
+        </div>
+        <div class="stop hide"onclick="stopAnimation()">Stop &#10060;</div>
     </div>
+
     <canvas id="droneCanvas"></canvas>
     <script src="main.js"></script>
 </body>

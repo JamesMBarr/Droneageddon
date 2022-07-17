@@ -8,7 +8,6 @@ importScripts("../helpers.js");
 const simulation = new Simulation();
 
 self.onmessage = function (e) {
-  console.log(e);
   if (e.data === "TRAIN") {
     simulation.train(() =>
       self.postMessage({

@@ -25,6 +25,16 @@ class Controls {
         case "ArrowRight":
           this.right = false;
           break;
+        case "a":
+        case "A":
+          if (!simulation) break;
+          if (simulation.intervalId) stopAnimation();
+          else startAnimation();
+          break;
+        case "b":
+        case "B":
+          startTraining();
+          break;
         case "f":
         case "F":
           startSelfDriveDrone();
@@ -33,6 +43,9 @@ class Controls {
         case "M":
           openMainMenu();
           break;
+        case "s":
+        case "S":
+          stopTraining();
         case "t":
         case "T":
           openTrainingMenu();
