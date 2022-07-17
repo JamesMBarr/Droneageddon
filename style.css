@@ -21,10 +21,10 @@ html, body {
     align-items: center;
 }
 
-#menu {
+.menu {
     width: 600px;
     padding: 2rem;
-    border-radius: 50px;
+    border-radius: 2rem;
 
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -42,7 +42,7 @@ html, body {
     z-index: 10;
 }
 
-h1 {
+h1, h2 {
     margin-top: 0;
 }
 
@@ -58,6 +58,23 @@ button {
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
+.spacer {
+    width: 20px;
+}
+
 .hide {
-    visibility: hidden;
+    display: none;
+}
+
+.warning {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #efa5a5;
+}
+
+.warning-icon {
+    font-size: 2rem;
+    padding-right: 1rem;
 }

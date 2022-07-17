@@ -25,13 +25,17 @@ class Controls {
         case "ArrowRight":
           this.right = false;
           break;
-        case "m":
-        case "M":
-          openMenu();
-          break;
         case "f":
         case "F":
           startSelfDriveDrone();
+          break;
+        case "m":
+        case "M":
+          openMainMenu();
+          break;
+        case "t":
+        case "T":
+          openTrainingMenu();
           break;
       }
     };
