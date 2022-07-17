@@ -1,13 +1,15 @@
 class Simulation {
   constructor() {
-    this.GENERATION_SIZE = 100;
+    this.GENERATION_SIZE = 1000;
     this.NUMBER_TO_DRAW = 10;
     this.TIME_STEP = 16; // ms
 
     // TARGET
     this.NUMBER_OF_GENERATIONS = 50;
-    this.MAX_DURATION_GENERATION = 60; // s
+    this.MAX_DURATION_GENERATION = 120; // s
     this.MIN_DURATION_AT_TARGET = 0.5; // s
+
+    this.intervalId = 0;
 
     this.generation = 0; // counter
     this.intervalId = 0;
@@ -64,25 +66,37 @@ class Simulation {
   }
 
   /**
-   * Train the a series of generations of drones until the target fitness is
-   * reached.
+   * Train the a series of generations of drones until interval is cancelled by
+   * cancel training. Using interval to allow for cancelling.
    */
   train() {
+    this.trainGeneration();
+
+    this.intervalId = setInterval(() => {
+      this.#startNextGeneration();
+      this.trainGeneration();
+    }, 50);
+  }
+
+  /**
+   * Cancels training once the last generation has been trained.
+   */
+  cancelTraining() {
+    clearInterval(this.intervalId);
+  }
+
+  /**
+   * Trains a single generation of drones.
+   */
+  trainGeneration() {
     let generationDuration = 0;
 
-    // while (this.activeDrones[0].fitness < this.TARGET_FITNESS) {
-    while (this.generation < this.NUMBER_OF_GENERATIONS) {
-      // run a generation to a maximum of 1 minute
-      if (generationDuration < this.MAX_DURATION_GENERATION * 1e3) {
-        for (let i = 0; i < this.activeDrones.length; i++) {
-          this.updateDrone(this.activeDrones[i]);
-        }
-        this.activeDrones = this.activeDrones.filter((d) => d.active);
-        generationDuration += this.TIME_STEP;
-      } else {
-        this.#startNextGeneration();
-        generationDuration = 0;
+    while (generationDuration < this.MAX_DURATION_GENERATION * 1e3) {
+      for (let i = 0; i < this.activeDrones.length; i++) {
+        this.updateDrone(this.activeDrones[i]);
       }
+      this.activeDrones = this.activeDrones.filter((d) => d.active);
+      generationDuration += this.TIME_STEP;
     }
   }
 
@@ -149,7 +163,7 @@ class Simulation {
    */
   #calculateNextGeneration() {
     // next generation contains top 10% of the current generation
-    const nextGeneration = this.#selectTopPercentage(0.4);
+    const nextGeneration = this.#selectTopPercentage(0.1);
 
     // reset drones from the previous generation
     for (const drone of nextGeneration) {
@@ -233,7 +247,6 @@ class Simulation {
   get sortedDrones() {
     return this.drones.sort(
       (a, b) =>
-        b.active - a.active ||
         b.numberOfTargetsReached - a.numberOfTargetsReached ||
         a.distanceFromTargetTime - b.distanceFromTargetTime ||
         b.activeTime - a.activeTime
