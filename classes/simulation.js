@@ -5,7 +5,6 @@ class Simulation {
     this.TIME_STEP = 16; // ms
 
     // TARGET
-    this.NUMBER_OF_GENERATIONS = 50;
     this.MAX_DURATION_GENERATION = 120; // s
     this.MIN_DURATION_AT_TARGET = 0.5; // s
 
@@ -39,6 +38,24 @@ class Simulation {
     }
     // moving this into a getter causes performance issues
     this.activeDrones = this.drones;
+  }
+
+  /**
+   * Reconstructs a simulation and all it's drones from the data passed back by
+   * a Web Worker running a simulation.
+   * @param {any} data - simulation data from a worker
+   * @returns {Simulation} reconstructed simulation
+   */
+  static formWorker(data) {
+    const sim = new Simulation();
+    sim.GENERATION_SIZE = data.GENERATION_SIZE;
+    sim.MAX_DURATION_GENERATION = data.MAX_DURATION_GENERATION;
+    sim.MIN_DURATION_AT_TARGET = data.MIN_DURATION_AT_TARGET;
+
+    sim.generation = sim.generation;
+
+    sim.drones = data.drones.map((d) => Drone.fromWorker(d));
+    return sim;
   }
 
   /**
