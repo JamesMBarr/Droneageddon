@@ -277,7 +277,7 @@ class Drone {
 
     // if no longer active stop the animation and open menu
     if (!this.active) {
-      openMainMenu();
+      controls.openMainMenu();
       this.stopAnimation();
     }
   }

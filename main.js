@@ -11,19 +11,24 @@ window.addEventListener("resize", () => {
 
 const droneCtx = droneCanvas.getContext("2d");
 const controls = new Controls();
+const droneRepo = new DroneRepository();
 
 let simulation = null;
 const simulationWorker = new Worker("./workers/simulationWorker.js");
 simulationWorker.onmessage = function (e) {
+  console.log(`Worker listener received message: ${e.data.type}`);
+
   switch (e.data.type) {
     case "STOPPED":
-      simulation = Simulation.formWorker(e.data.simulation);
-      enableButton("#animation-button");
+      const simulationData = e.data.simulation;
+      simulation = Simulation.formWorker(simulationData);
+
+      if (simulationData.gen > 0) {
+        controls.enablePostTrainingButtons();
+      }
       break;
     case "GENERATION_TRAINED":
-      gen = e.data.stats.gen;
-      maxNumberOfTargetsReached = e.data.stats.maxNumberOfTargetsReached;
-      setGenStats();
+      controls.setGenStats(e.data.stats);
       break;
     default:
       break;

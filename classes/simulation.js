@@ -1,6 +1,6 @@
 class Simulation {
   constructor() {
-    this.GENERATION_SIZE = 1000;
+    this.GENERATION_SIZE = 2500;
     this.NUMBER_TO_DRAW = 10;
     this.TIME_STEP = 16; // ms
 
@@ -52,7 +52,7 @@ class Simulation {
     sim.MAX_DURATION_GENERATION = data.MAX_DURATION_GENERATION;
     sim.MIN_DURATION_AT_TARGET = data.MIN_DURATION_AT_TARGET;
 
-    sim.gen = sim.gen;
+    sim.gen = data.gen;
 
     sim.drones = data.drones.map((d) => Drone.fromWorker(d));
     return sim;
@@ -147,7 +147,7 @@ class Simulation {
       this.sortedDrones[i].resetControlsAndVariables();
     }
 
-    showBySelector("#training-menu");
+    controls.openCurrentMenu();
   }
 
   /**

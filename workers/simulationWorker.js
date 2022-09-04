@@ -8,6 +8,8 @@ importScripts("../helpers.js");
 const simulation = new Simulation();
 
 self.onmessage = function (e) {
+  console.log(`Worker received message: ${e.data}`);
+
   if (e.data === "TRAIN") {
     simulation.train(() =>
       self.postMessage({

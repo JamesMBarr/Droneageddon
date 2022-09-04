@@ -15,17 +15,34 @@ button {
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table td, table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table tr:nth-child(even){background-color: #f2f2f2;}
+
+table tr:hover {background-color: #ddd;}
+
+table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: gray;
+    color: white;
+}
+
 #droneCanvas {
     position: absolute;
     left: 0;
     top: 0;
     background-color: lightgray;
     overflow: hidden;
-}
-
-#status {
-    font-size: 1.25rem;
-    margin: 0;
 }
 
 .container {
