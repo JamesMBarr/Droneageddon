@@ -198,7 +198,10 @@ class Controls {
       return;
     }
 
-    this.drone.target = new Target([e.clientX, droneCanvas.height - e.clientY]);
+    const x = e.clientX / SCALE_FACTOR;
+    const y = (droneCanvas.height - e.clientY) / SCALE_FACTOR;
+
+    this.drone.target = new Target([x, y]);
   }
 
   #addKeyboardListeners() {

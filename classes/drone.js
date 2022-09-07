@@ -1,3 +1,5 @@
+const SCALE_FACTOR = 150; // pixm^-1
+
 class Drone {
   /**
    * @param {Brain} brain
@@ -8,23 +10,25 @@ class Drone {
     this.id = generateId();
 
     // CONSTS
-    this.WIDTH = 100; // pixels
-    this.HEIGHT = 30; // pixels
-    this.MASS = 0.4; // kg
+    this.WIDTH = 0.5; // m
+    this.WIDTH_IN_PIX = this.WIDTH * SCALE_FACTOR;
+    this.HEIGHT = 0.2; // m
+    this.HEIGHT_IN_PIX = this.HEIGHT * SCALE_FACTOR;
+    this.MASS = 1.5; // kg
     // prettier-ignore
-    // this.i = (2 * (this.MASS / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
-    // Experimentally found - calculation doesn't feel right
-    this.I = 10; // kgm^2
+    // this.I = (2 * (this.MASS / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
+    // Experimentally found - calculation doesn't feel right =~0.03kgm^2
+    this.I = 0.1; // kgm^2
     // https://droneomega.com/drone-motor-essentials/
-    this.MOTOR_THRUST = 9.81 / 2; // N
+    this.MOTOR_THRUST = 15; // N
     this.BOUNDARIES = [
-      [-5000, 5000],
-      [-5000, 5000],
-    ];
+      [-50, 50],
+      [-50, 50],
+    ]; // m
     this.GRAVITY = [0, -9.81];
 
     // DYNAMICS VARS
-    this.pos = [250, 250]; // pixels
+    this.pos = [0, 0]; // m
     this.velocity = [0, 0]; // ms-1
     this.theta = 0; // rad
     this.omega = 0; // rads-1
@@ -96,7 +100,10 @@ class Drone {
 
   startAnimation() {
     // when animating start from the center of the canvas
-    this.pos = [droneCanvas.width / 2, droneCanvas.height / 2];
+    this.pos = [
+      droneCanvas.width / (2 * SCALE_FACTOR),
+      droneCanvas.height / (2 * SCALE_FACTOR),
+    ];
     this.intervalId = setInterval(() => this.#frame(), this.TIME_STEP);
   }
 
@@ -121,10 +128,10 @@ class Drone {
       ];
     } else if (this.brain) {
       const output = this.brain.calculateDroneControls([
-        (this.target.pos[0] - this.pos[0]) / 1e3,
-        (this.target.pos[1] - this.pos[1]) / 1e3,
-        this.velocity[0] / 1e3,
-        this.velocity[1] / 1e3,
+        this.target.pos[0] - this.pos[0],
+        this.target.pos[1] - this.pos[1],
+        this.velocity[0],
+        this.velocity[1],
         this.theta,
         this.omega,
       ]);
@@ -176,11 +183,13 @@ class Drone {
   draw(ctx, canvas, label) {
     ctx.save();
 
+    // convert drone position into pixels
+    const x = this.pos[0] * SCALE_FACTOR;
+    const y = this.pos[1] * SCALE_FACTOR;
     // wrap the x-axis
-    const xMod =
-      (this.pos[0] % canvas.width) + (this.pos[0] < 0 ? canvas.width : 0);
+    const xMod = (x % canvas.width) + (x < 0 ? canvas.width : 0);
     // inverse the y axis
-    const yMod = canvas.height - this.pos[1];
+    const yMod = canvas.height - y;
     ctx.translate(xMod, yMod);
     ctx.rotate(this.theta);
 
@@ -194,8 +203,8 @@ class Drone {
     // drone frame triangle
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.lineTo(this.WIDTH / 2, this.HEIGHT);
-    ctx.lineTo(-this.WIDTH / 2, this.HEIGHT);
+    ctx.lineTo(this.WIDTH_IN_PIX / 2, this.HEIGHT_IN_PIX);
+    ctx.lineTo(-this.WIDTH_IN_PIX / 2, this.HEIGHT_IN_PIX);
     ctx.lineTo(0, 0);
     ctx.stroke();
 
@@ -215,10 +224,10 @@ class Drone {
     for (let i = 0; i < 2; i++) {
       ctx.save();
       const side = (i + 1) % 2 == 0 ? 1 : -1;
-      ctx.translate((side * this.WIDTH) / 2, this.HEIGHT);
+      ctx.translate((side * this.WIDTH_IN_PIX) / 2, this.HEIGHT_IN_PIX);
       ctx.rotate(this.motorAngle[i]);
       const width = side * 7;
-      const height = this.HEIGHT / 2;
+      const height = this.HEIGHT_IN_PIX / 2;
 
       ctx.fillStyle = "black";
       ctx.fillRect(-width / 2, -height, width, height);
@@ -328,8 +337,7 @@ class Drone {
     let force = this.#resolveForces();
     for (let dim = 0; dim < 2; dim++) {
       this.velocity[dim] += (force[dim] / this.MASS) * dtInSeconds;
-      // multiple by 50 to convert 500 pixels into 10m
-      this.pos[dim] = this.pos[dim] + this.velocity[dim] * dtInSeconds * 50;
+      this.pos[dim] = this.pos[dim] + this.velocity[dim] * dtInSeconds;
     }
 
     this.omega += (this.#calculateTorque() / this.I) * dtInSeconds;
@@ -368,7 +376,7 @@ class Drone {
   }
 
   #resetDynamicVariables() {
-    this.pos = [250, 250];
+    this.pos = [0, 0];
     this.velocity = [0, 0];
     this.theta = 0;
     this.omega = 0;
