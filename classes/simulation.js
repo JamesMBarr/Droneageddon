@@ -1,42 +1,28 @@
 class Simulation {
   constructor() {
-    this.GENERATION_SIZE = 2500;
+    this.GENERATION_SIZE = 1500;
     this.NUMBER_TO_DRAW = 10;
     this.TIME_STEP = 16; // ms
 
     // TARGET
-    this.MAX_DURATION_GENERATION = 120; // s
+    this.MAX_DURATION_GENERATION = 60; // s
     this.MIN_DURATION_AT_TARGET = 0.5; // s
+    this.DISTANCE_THRESHOLD = 0.05; //m
 
-    this.intervalId = 0;
-
+    this.active = false;
     this.gen = 0; // counter
     this.intervalId = 0;
 
-    /**
-     * TODO: generate some random points
-     * @type {Target[]}
-     */
-    this.targetSet = [
-      new Target([775, 752]),
-      new Target([814, 124]),
-      new Target([509, 370]),
-      new Target([894, 519]),
-      new Target([194, 579]),
-      new Target([611, 506]),
-      new Target([600, 481]),
-      new Target([188, 251]),
-    ];
+    /** @type {Target[]} */
+    this.targetSet = [];
 
-    // start with random drones
+    /** @type {Drone[]} */
     this.drones = [];
-    for (let i = 0; i < this.GENERATION_SIZE; i++) {
-      const drone = new Drone();
-      // manually set the target on the drone to prevent increment targets reached
-      drone.target = this.targetSet[0];
-      this.drones.push(drone);
-    }
-    // moving this into a getter causes performance issues
+
+    /**
+     * Moving this into a getter causes performance issues
+     * @type {Drone[]}
+     */
     this.activeDrones = this.drones;
   }
 
@@ -51,6 +37,7 @@ class Simulation {
     sim.GENERATION_SIZE = data.GENERATION_SIZE;
     sim.MAX_DURATION_GENERATION = data.MAX_DURATION_GENERATION;
     sim.MIN_DURATION_AT_TARGET = data.MIN_DURATION_AT_TARGET;
+    sim.targetSet = data.targetSet.map((t) => new Target(t.pos));
 
     sim.gen = data.gen;
 
@@ -65,7 +52,7 @@ class Simulation {
   updateDrone(drone, updateMetric) {
     drone.update(this.TIME_STEP, updateMetric);
 
-    if (drone.distanceFromTarget < 10) {
+    if (drone.distanceFromTarget < this.DISTANCE_THRESHOLD) {
       drone.timeAtTarget += this.TIME_STEP;
 
       // consider target reached when drone has been within target radius
@@ -89,6 +76,10 @@ class Simulation {
    * @param {function} callback - function called after training a generation
    */
   train(callback) {
+    if (this.active) return;
+    this.active = true;
+
+    if (this.drones.length === 0) this.#initialFirstGeneration();
     this.trainGeneration();
 
     this.intervalId = setInterval(() => {
@@ -102,6 +93,7 @@ class Simulation {
    * Cancels training once the last generation has been trained.
    */
   cancelTraining() {
+    this.active = false;
     clearInterval(this.intervalId);
   }
 
@@ -220,11 +212,36 @@ class Simulation {
       nextGeneration.push(child);
     }
 
+    // generate a new set of target between generations
+    // this.#setTrainingTargets();
+
     for (const drone of nextGeneration) {
       drone.target = this.targetSet[0];
     }
 
     return nextGeneration;
+  }
+
+  #initialFirstGeneration() {
+    this.#setTrainingTargets();
+
+    // start with random drones
+    this.drones = [];
+    for (let i = 0; i < this.GENERATION_SIZE; i++) {
+      const drone = new Drone();
+      // manually set the target on the drone to prevent increment targets reached
+      drone.target = this.targetSet[0];
+      this.drones.push(drone);
+    }
+    // moving this into a getter causes performance issues
+    this.activeDrones = this.drones;
+  }
+
+  #setTrainingTargets() {
+    // assumes target will not reach 100 targets within max time duration
+    this.targetSet = new Array(100)
+      .fill(null)
+      .map(() => Target.randomBetween(0, 10));
   }
 
   /**

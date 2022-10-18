@@ -8,6 +8,20 @@ class Target {
   }
 
   /**
+   * Create a target positioned between the min and max in both the x and y
+   * direction.
+   * @param {number} min - minimum x and y position in meters
+   * @param {number} max - maximum x and y position in meters
+   * @returns randomly positioned target
+   */
+  static randomBetween(min, max) {
+    const x = Math.random() * (min + max) - min;
+    const y = Math.random() * (min + max) - min;
+
+    return new Target([x, y]);
+  }
+
+  /**
    * Basic illustration of a target. Adds a label if it is defined. Draws
    * @param {CanvasRenderingContext2D} ctx
    * @param {HTMLCanvasElement} canvas

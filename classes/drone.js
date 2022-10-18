@@ -18,7 +18,7 @@ class Drone {
     // prettier-ignore
     // this.I = (2 * (this.MASS / 2) * Math.pow(0.3 / 2, 2)); // Moment of Inertia Kgm^2
     // Experimentally found - calculation doesn't feel right =~0.03kgm^2
-    this.I = 0.1; // kgm^2
+    this.I = 0.2; // kgm^2
     // https://droneomega.com/drone-motor-essentials/
     this.MOTOR_THRUST = 15; // N
     this.BOUNDARIES = [

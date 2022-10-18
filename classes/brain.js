@@ -11,7 +11,7 @@ class Brain {
     this.NUMBER_OF_INPUTS = 6;
     this.NUMBER_OF_OUTPUTS = 4;
     this.NUMBER_OF_NODES_IN_HIDDEN_LAYERS = [12, 6];
-    this.MUTATION_RATE = 0.01;
+    this.MUTATION_RATE = 0.1;
     this.RANDOM_VALUE_LIMIT = 2;
 
     // NEURAL NETWORK

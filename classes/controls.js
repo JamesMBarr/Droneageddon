@@ -164,7 +164,7 @@ class Controls {
       this.drone = null;
     }
 
-    if (simulation !== null) {
+    if (simulation !== null && simulation.drones.length !== 0) {
       simulation.stopAnimation();
     }
 
