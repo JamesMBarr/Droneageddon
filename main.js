@@ -14,6 +14,13 @@ const controls = new Controls();
 const droneRepo = new DroneRepository();
 
 let simulation = null;
+
+if (typeof Worker === "undefined") {
+  console.error(
+    "Web workers are required for this application. Please try a different browser."
+  );
+}
+
 const simulationWorker = new Worker("./workers/simulationWorker.js");
 simulationWorker.onmessage = function (e) {
   console.log(`Worker listener received message: ${e.data.type}`);

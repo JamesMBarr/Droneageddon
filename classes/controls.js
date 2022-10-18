@@ -41,6 +41,7 @@ class Controls {
   }
 
   openLoadMenu() {
+    droneRepo.loadPreloadedTable();
     droneRepo.loadTable();
     this.#openMenu("#load-menu");
   }

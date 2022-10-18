@@ -1,5 +1,23 @@
 class DroneRepository {
-  constructor() {}
+  constructor() {
+    this.preloadedDrone = Drone.fromWorker(JSON.parse(preloadedDroneData));
+  }
+
+  loadPreloadedTable() {
+    let html = `<tr>
+      <th>Name</th>
+      <th>Targets Reached</th>
+      <th>Actions</th>
+    </tr>`;
+
+    html += `<tr>
+      <td>Flicky</td>
+      <td>${this.preloadedDrone.numberOfTargetsReached}</td>
+      <td><button onclick="controls.handleLoad('${this.preloadedDrone.id}')">Load</button></td>
+    </tr>`;
+
+    document.querySelector("#preload-table").innerHTML = html;
+  }
 
   /**
    * Creates and populates the table of previously saved drones.
@@ -54,6 +72,10 @@ class DroneRepository {
    * @returns drone if one has matching identifier, otherwise returns null
    */
   load(id) {
+    if (this.preloadedDrone.id === id) {
+      return this.preloadedDrone;
+    }
+
     const contents = localStorage.getItem(id);
 
     if (contents === null) {
