@@ -1,8 +1,10 @@
-importScripts("../classes/Simulation.js");
-importScripts("../classes/Drone.js");
-importScripts("../classes/Target.js");
-importScripts("../classes/Brain.js");
-importScripts("../helpers.js");
+importScripts(
+  "../classes/simulation.js",
+  "../classes/drone.js",
+  "../classes/target.js",
+  "../classes/brain.js",
+  "../helpers.js"
+);
 
 /** @type {Simulation} */
 const simulation = new Simulation();
