@@ -1,0 +1,10 @@
+{
+  "name": "Droneageddon",
+  "version": "0.1.0",
+  "main": "index.html",
+  "author": "James Barr <James.Matthew.Barr@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "firebase-tools": "^11.15.0"
+  }
+}
