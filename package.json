@@ -9,7 +9,9 @@
     "npm": "10.9.0"
   },
   "scripts": {
-    "dev": "firebase emulators:start --only hosting"
+    "dev": "firebase emulators:start --only hosting",
+    "login": "firebase login",
+    "deploy": "firebase deploy --only hosting"
   },
   "devDependencies": {
     "firebase-tools": "^13.26.0"

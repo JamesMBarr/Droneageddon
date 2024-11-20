@@ -3,6 +3,21 @@
 Droneageddon is a simple drone simulator which uses reinforcement learning to
 train drones to track targets!
 
+## Getting Started
+
+Start development server by:
+
+```bash
+npm run dev
+```
+
+To deploy:
+
+```bash
+npm run login # to login into the firebase CLI
+npm run deploy # to deploy local files
+```
+
 ## Improvements
  - Define a proper fitness/cost function which penalise motor flickering
  - Experiment using multiple web workers for training
