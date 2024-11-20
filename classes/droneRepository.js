@@ -1,6 +1,7 @@
 class DroneRepository {
   constructor() {
     this.preloadedDrone = Drone.fromWorker(JSON.parse(preloadedDroneData));
+    this.storagePrefix = "drone-"
   }
 
   loadPreloadedTable() {
@@ -34,6 +35,12 @@ class DroneRepository {
 
     for (let index = 0; index < localStorage.length; index++) {
       const key = localStorage.key(index);
+
+      // exclude local storage items not starting with expected key
+      if (!key.startsWith(this.storagePrefix)) {
+        continue
+      }
+
       const droneData = JSON.parse(localStorage.getItem(key));
       saves.push(droneData);
     }
@@ -59,7 +66,7 @@ class DroneRepository {
     const now = new Date(Date.now());
 
     localStorage.setItem(
-      drone.id,
+      this.storagePrefix + drone.id,
       JSON.stringify({ ...drone, savedAt: now.toISOString() })
     );
 
@@ -76,7 +83,7 @@ class DroneRepository {
       return this.preloadedDrone;
     }
 
-    const contents = localStorage.getItem(id);
+    const contents = localStorage.getItem(this.storagePrefix + id);
 
     if (contents === null) {
       console.warn(`No drone found with the matching identifier: ${id}`);
