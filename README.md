@@ -3,6 +3,8 @@
 Droneageddon is a simple drone simulator which uses reinforcement learning to
 train drones to track targets!
 
+Try it yourself at: https://droneageddon-381bc.web.app/
+
 ## Getting Started
 
 Start development server by:
